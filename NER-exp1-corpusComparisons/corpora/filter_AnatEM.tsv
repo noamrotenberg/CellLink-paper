@@ -1,0 +1,43 @@
+*	Cell	*	cell_type	*
+*	Cancer	*
+*	Multi-tissue_structure	*
+*	RNA	*
+*	Organ	*
+*	Tissue	*
+*	Cellular_component	*
+*	Organism_substance	*
+*	Pathological_formation	*
+*	Organism_subdivision	*
+*	Immaterial_anatomical_entity	*
+*	Anatomical_system	*
+*	Developing_anatomical_structure	*
+cell	cell_type	*
+cells	cell_type	*
+cellular	cell_type	*
+cell lines	cell_type	*
+cultures	cell_type	*
+colonies	cell_type	*
+NIH3T3 cells	cell_type	*
+Cells	cell_type	*
+spheroids	cell_type	*
+colony	cell_type	*
+F-2 cells	cell_type	*
+strain	cell_type	*
+transformants	cell_type	*
+cell line	cell_type	*
+cancer cell lines	cell_type	*
+Cell	cell_type	*
+strains	cell_type	*
+foci	cell_type	*
+K562 cells	cell_type	*
+tumor cell lines	cell_type	*
+Rat-1 cells	cell_type	*
+MCF-7 cells	cell_type	*
+HepG2 cells	cell_type	*
+revertants	cell_type	*
+communities	cell_type	*
+clones	cell_type	*
+cell culture	cell_type	*
+biofilm	cell_type	*
+HeLa cells	cell_type	*
+CaSki cells	cell_type	*

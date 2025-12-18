@@ -1,0 +1,73 @@
+#!/bin/bash
+
+# how to run: 1) change name of DATA_SRC_DIR, 2) ensure correct train/val/test subdirectory names
+
+# source ../../bert_env/bin/activate
+source ~/bert_env/bin/activate
+
+SCRIPT_SRC_PATH="src"
+OUTPUT_DIR="model_output"
+MODEL_PATHS="models"
+
+# first, convert all files to huggingface json format
+## **** DELETED TEMPorarily
+
+# train a model on each corpus
+# add: CRAFT JNLPBA
+for CORPUS_NAME in NLM_CellLink AnatEM BioID
+do
+    if [[ "$CORPUS_NAME" == "NLM_CellLink" ]]; then
+        # DATA_SRC_PATH="../../NLM_CellLink_data"
+        DATA_SRC_PATH="../NLM_CellLink_data"
+    else
+        DATA_SRC_PATH="data/$CORPUS_NAME"
+    fi
+    
+    TRAIN_XML_PATH="${DATA_SRC_PATH}/train.xml"
+    TRAIN_JSON="${DATA_SRC_PATH}/train.hf.json"
+    
+    
+    #GPU
+    # Train the model on the JSON files
+    CUDA=0 # GPU number
+    MODEL="${MODEL_PATHS}/${CORPUS_NAME}" # name of directory to output model
+    mkdir -p "$MODEL"
+    
+    # use nvidia-smi or gpustat to find a GPU with memory free
+    export CUDA_VISIBLE_DEVICES="${CUDA}"
+    echo "CUDA_VISIBLE_DEVICES=${CUDA_VISIBLE_DEVICES}"
+    
+    python -u "${SCRIPT_SRC_PATH}/run_ner.py" \
+      --model_name_or_path microsoft/BiomedNLP-PubMedBERT-base-uncased-abstract-fulltext \
+      --task_name ner \
+      --train_file "$TRAIN_JSON" \
+      --output_dir "$MODEL" \
+      --num_train_epochs=20.0 \
+      --save_steps=10000 \
+      --save_total_limit=3 \
+      --evaluation_strategy=epoch \
+      --learning_rate=3e-05 \
+      --per_device_train_batch_size=16 \
+      --do_train \
+      --do_eval
+    
+    # could add: --validation_file "$DEV_JSON" \
+    
+    # apply model to test set of each corpus
+    for CORPUS_NAME2 in NLM_CellLink AnatEM BioID
+        python -u "${SCRIPT_SRC_PATH}/run_ner.py" \
+          --model_name_or_path "$MODEL" \
+          --task_name ner \
+          --train_file "$TRAIN_JSON" \
+          --test_file "$TEST_JSON" \
+          --output_dir "$OUTPUT_DIR/${CORPUS_NAME}-${CORPUS_NAME2}" \
+          --do_predict
+        
+        # --validation_file "$DEV_JSON" \
+        
+        
+        OUTPUT_JSON_FILE="${OUTPUT_DIR}/${CORPUS_NAME}-${CORPUS_NAME2}/predictions.json"
+        
+        # Now convert the JSON output into tagged BioC XML
+    python -u "${SCRIPT_SRC_PATH}/convert_hfjson_to_bioc.py" $TEST_XML_PATH $TEST_JSON $OUTPUT_JSON_FILE "${OUTPUT_DIR}/${CORPUS_NAME}_model_on_${CORPUS_NAME2}_test_pred.xml"
+done
