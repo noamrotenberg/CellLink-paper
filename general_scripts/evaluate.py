@@ -40,6 +40,7 @@ def get_annotations_from_XML(input_collection, input_filename, eval_config, NER_
             passage_text = passage.find(".//text").text
             passage_end = passage_offset + len(passage_text)
             passage_text_dict[passage_id][passage_offset] = passage_text
+            # the passage_offset key is unnecessary but not harmful, so we keep for backwards compatibility
             for annotation in passage.findall(".//annotation"):
                 annotation_id = annotation.attrib["id"]
                 type = annotation.find(".//infon[@key='type']").text
@@ -378,6 +379,15 @@ def filter_entity(annotations, entity_to_keep): # entity_to_keep can be string o
     if not (entity_to_keep is None):
         return set(filter(lambda ann: ann[1] in entity_to_keep, annotations))
 
+def filter_passages(annotations, passages, reference_passages):
+    filtered_passages = copy.deepcopy(passages)
+    for passage_id in passages.keys():
+        if passage_id not in reference_passages:
+            del filtered_passages[passage_id]
+    
+    filtered_annotations = copy.deepcopy([ann for ann in annotations if ann.passage_id in filtered_passages])
+    return filtered_annotations, filtered_passages
+
 if __name__ == "__main__":
     
     start = datetime.datetime.now()
@@ -389,6 +399,7 @@ if __name__ == "__main__":
     parser.add_argument("--annotation_type", "-a", type=str, required=True, help="The annotation type to consider, all others are ignored. 'None' considers all types, but it still must match")
     parser.add_argument("--logging_level", "-l", type=str, default="INFO", help="The logging level, options are {critical, error, warning, info, debug}")
     parser.add_argument("--no_document_verification", dest='verify_documents', action='store_const', const=False, default=True, help='Do not verify that reference and predicted document sets match')
+    parser.add_argument("--skip_extra_pred_passages", action='store_true', help="If there are passages only found in the prediction input, then skip them.")
     
     args = parser.parse_args()
     evaluation_type = args.evaluation_type
@@ -403,15 +414,18 @@ if __name__ == "__main__":
     eval_config = evaluation_config(annotation_types, evaluation_type)
     reference_annotations, reference_passages = get_annotations_from_path(args.reference_path, eval_config)
     predicted_annotations, predicted_passages = get_annotations_from_path(args.prediction_path, eval_config)
-    print(len(reference_annotations), len(predicted_annotations))
-    print("annotation_types:", annotation_types)
-    print((annotation_types is not None) and ("merged" in annotation_types))
+    log.info(f"Extracted {len(reference_annotations)} reference and {len(predicted_annotations)} predicted annotations.")
+    log.info("Annotation types extracted:", annotation_types)
+    
+    if args.skip_extra_pred_passages:
+        predicted_annotations, predicted_passages = filter_passages(predicted_annotations, predicted_passages, reference_passages)
+    
     if (annotation_types is not None) and ("merged" in annotation_types):
         reference_annotations = [ann._replace(type="merged") for ann in reference_annotations]
         predicted_annotations = [ann._replace(type="merged") for ann in predicted_annotations]
-    else:
-        filter_entity(reference_annotations, annotation_types)
-        filter_entity(predicted_annotations, annotation_types)
+    # else: I'M PRETTY SURE THIS DOES NOTHING! double check before deleting
+    #     filter_entity(reference_annotations, annotation_types)
+    #     filter_entity(predicted_annotations, annotation_types)
     log_entity_types(reference_annotations, predicted_annotations)
     
     if args.verify_documents:
@@ -427,5 +441,5 @@ if __name__ == "__main__":
         eval_result = do_approx_span_eval(reference_annotations, predicted_annotations)
     else:
         raise ValueError("Unknown evaluation method: {}".format(evaluation_method))
-    print("P = {0:.4f}, R = {1:.4f}, F = {2:.4f}".format(eval_result.precision, eval_result.recall, eval_result.f_score))
+    print("P = {0:.3f}, R = {1:.3f}, F = {2:.3f}".format(eval_result.precision, eval_result.recall, eval_result.f_score))
     log.info("Elapsed time: {}".format(datetime.datetime.now() - start))

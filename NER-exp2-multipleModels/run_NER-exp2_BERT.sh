@@ -6,10 +6,11 @@ source ~/bert_env/bin/activate
 
 SCRIPT_SRC_PATH="src"
 FINAL_OUTPUT_PATH=../../model_outputs
+DATA_SRC_PATH="../../NLM_CellLink_data"
 
 for ENTITY_TYPE in cell_phenotype cell_hetero cell_desc
 do
-    DATA_SRC_PATH="../../NLM_CellLink_data"
+
     
     TRAIN_XML_PATH="${DATA_SRC_PATH}/splits_by_entity_type/train_${ENTITY_TYPE}_only.xml"
     DEV_XML_PATH="${DATA_SRC_PATH}/splits_by_entity_type/val_${ENTITY_TYPE}_only.xml"
