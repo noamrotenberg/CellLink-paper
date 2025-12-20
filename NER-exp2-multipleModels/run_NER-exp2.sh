@@ -20,8 +20,8 @@ do
     for EVALUATION_METHOD in strict approx
     do
         python ../general_scripts/evaluate.py --reference_path $CELLLINK_PATH/test.xml --prediction_path $ZEROSHOT_OUTPUT_PATH --evaluation_type span --evaluation_method $EVALUATION_METHOD --annotation_type "$ANNOTATION_TYPE"
-    end
-end
+    done
+done
 
 # LLAMA fine-tuning and inference: ### TO DELETE
 python src/LLAMA_finetuning.py $CELLLINK_PATH/LLM_json_format cell_hetero cell_hetero_only/LLAMA /data/rotenbergnh/llama_trials/meta-llama

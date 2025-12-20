@@ -33,7 +33,7 @@ def get_annotations_from_XML(input_collection, input_filename, eval_config, NER_
     #     document_id = document.find(".//id").text
     #     for passage_idx, passage in enumerate(document.findall(".//passage")):
     for passage in input_collection.findall(".//passage"):
-            passage_id = passage.find(".//passage_id").text
+            passage_id = passage.findtext("infon[@key='passage_id']")
             passage_offset = int(passage.find(".//offset").text)
             if passage.find(".//text") is None:
                 continue
@@ -291,7 +291,8 @@ def overlaps(start1, end1, start2, end2):
 
 def do_approx_span_eval(reference_annotations, predicted_annotations, pool=False):
     tp, fn, fp = 0, 0, 0
-
+    
+    # breakpoint()
     ref_locs = get_locations(reference_annotations)
     pred_locs = get_locations(predicted_annotations)
     all_docids = set(ref_locs.keys()).union(pred_locs.keys())
@@ -310,10 +311,14 @@ def do_approx_span_eval(reference_annotations, predicted_annotations, pool=False
         # Cost matrix: 0 = valid match, 1 = invalid
         cost = np.ones((len(refs), len(preds)))
 
-        for i, (r_type, r_start, r_end) in enumerate(refs):
-            for j, (p_type, p_start, p_end) in enumerate(preds):
-                if overlaps(r_start, r_end, p_start, p_end) and (pool or (r_type == p_type)):
-                    cost[i, j] = 0
+        for i, ref in enumerate(refs):
+            for ref_loc in ref:
+                for j, pred in enumerate(preds):
+                    for pred_loc in pred:
+                        r_type, r_start, r_end = ref_loc
+                        p_type, p_start, p_end = pred_loc
+                        if overlaps(r_start, r_end, p_start, p_end) and (pool or (r_type == p_type)):
+                            cost[i, j] = 0
 
         row_ind, col_ind = linear_sum_assignment(cost)
         matches = sum(cost[r, c] == 0 for r, c in zip(row_ind, col_ind))
