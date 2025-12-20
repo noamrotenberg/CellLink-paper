@@ -1,15 +1,14 @@
 import argparse
-import codecs
 import collections
 import datetime
-import json
 import logging
 import os
-import random
 import sys
+import copy
+import numpy as np
+from scipy.optimize import linear_sum_assignment
 import xml.etree.ElementTree as ElementTree
 
-# import lca
 
 # partially-edited script from Dr. Leaman is found in "2024 06 27 from Dr Leaman BC7T2-evaluation_v3.zip"
 
@@ -23,41 +22,43 @@ log = logging.getLogger(__name__)
 evaluation_config = collections.namedtuple("evaluation_config", ("annotation_types", "evaluation_type"))
 evaluation_count = collections.namedtuple("evaluation_count", ("tp", "fp", "fn"))
 evaluation_result = collections.namedtuple("evaluation_result", ("precision", "recall", "f_score"))
-span_annotation = collections.namedtuple("span_annotation", ("document_id", "type", "locations", "text"))
-identifier_annotation = collections.namedtuple("identifier_annotation", ("document_id", "type", "identifier"))
+span_annotation = collections.namedtuple("span_annotation", ("passage_id", "type", "locations", "text"))
+identifier_annotation = collections.namedtuple("identifier_annotation", ("passage_id", "type", "identifier"))
 annotation_location = collections.namedtuple("annotation_location", ("offset", "length"))
 
 def get_annotations_from_XML(input_collection, input_filename, eval_config, NER_blacklist):
     annotation_set = set()
     passage_text_dict = collections.defaultdict(dict)
-    for document in input_collection.findall(".//document"):
-        document_id = document.find(".//id").text
-        for passage_idx, passage in enumerate(document.findall(".//passage")):
+    # for document in input_collection.findall(".//document"):
+    #     document_id = document.find(".//id").text
+    #     for passage_idx, passage in enumerate(document.findall(".//passage")):
+    for passage in input_collection.findall(".//passage"):
+            passage_id = passage.find(".//passage_id").text
             passage_offset = int(passage.find(".//offset").text)
             if passage.find(".//text") is None:
                 continue
             passage_text = passage.find(".//text").text
             passage_end = passage_offset + len(passage_text)
-            passage_text_dict[document_id][passage_offset] = passage_text
+            passage_text_dict[passage_id][passage_offset] = passage_text
             for annotation in passage.findall(".//annotation"):
                 annotation_id = annotation.attrib["id"]
                 type = annotation.find(".//infon[@key='type']").text
                 if (not eval_config.annotation_types is None) and not (type in eval_config.annotation_types): # I changed "and" to "or"... #########
-                    continue ######### I CAN'T GET THIS TO WORK CORRECTLY
+                    continue
                 if eval_config.evaluation_type == "span":
                     locations = [annotation_location(int(location.get("offset")), int(location.get("length"))) for location in annotation.findall(".//location")]
                     if sum(location.length for location in locations) == 0:
-                        log.warning("Ignoring zero-length annotation: document ID = {}, annotation ID = {}".format(document_id, annotation_id))
+                        log.warning("Ignoring zero-length annotation: document ID = {}, annotation ID = {}".format(passage_id, annotation_id))
                         continue
                     if any((location.offset < passage_offset or location.offset + location.length > passage_end) for location in locations):
-                        log.warning("Ignoring annotation with span outside of passage: document ID = {}, annotation ID = {}".format(document_id, annotation_id))
+                        log.warning("Ignoring annotation with span outside of passage: document ID = {}, annotation ID = {}".format(passage_id, annotation_id))
                         continue
                     locations.sort()
                     annotation_text = annotation.find(".//text").text
                     location_text = " ".join([passage_text[offset - passage_offset: offset - passage_offset + length] for offset, length in locations])
-                    annotation = span_annotation(document_id, type, tuple(locations), annotation_text)
+                    annotation = span_annotation(passage_id, type, tuple(locations), annotation_text)
                     if annotation_text != location_text:
-                        log.error("Annotation text {} does not match text at location(s) {}: document ID = {}, annotation ID = {}".format(annotation_text, location_text, document_id, annotation_id))
+                        log.error("Annotation text {} does not match text at location(s) {}: document ID = {}, annotation ID = {}".format(annotation_text, location_text, passage_id, annotation_id))
                     if not (annotation_text.lower() in NER_blacklist):
                         annotation_set.add(annotation)
                 if eval_config.evaluation_type == "identifier":
@@ -68,12 +69,11 @@ def get_annotations_from_XML(input_collection, input_filename, eval_config, NER_
                     if identifier_node.text is None:
 #                         print("**an identifier is None!!**")
                         identifier_node.text = "None"
-                    #elif not ("CL:" in identifier_node.text): # catch any non-CL or non-PCL
-                    elif "uberon" in identifier_node.text.lower():
+                    elif not ("CL:" in identifier_node.text):
                         raise Exception("non-CL ID:" + identifier_node.text)
                     for identifier in identifier_node.text.split(","):
-                        # annotation = identifier_annotation(document_id, type, identifier)
-                        annotation = identifier_annotation(str(document_id) + '_' + str(passage_idx), type, identifier)
+                        # annotation = identifier_annotation(passage_id, type, identifier)
+                        annotation = identifier_annotation(str(passage_id), type, identifier)
                         print("using passage idx!")
                         #log.debug("BioCXML file {} identifier annotation {}".format(input_filename, str(annotation)))
                         annotation_set.add(annotation)
@@ -83,14 +83,15 @@ def get_annotations_from_JSON(input_collection, input_filename, eval_config):
     annotation_set = set()
     passage_text_dict = collections.defaultdict(dict)
     for document in input_collection["documents"]:
-        document_id = document["id"]
+        # document_id = document["id"]
         for passage in document["passages"]:
+            passage_id = passage["passage_id"]
             passage_offset = passage["offset"]
             passage_text = passage.get("text")
             passage_end = passage_offset + len(passage_text)
             if passage_text is None:
                 continue
-            passage_text_dict[document_id][passage_offset] = passage_text
+            passage_text_dict[passage_id][passage_offset] = passage_text
             for annotation in passage["annotations"]:
                 annotation_id = annotation["id"]
                 type = annotation["infons"]["type"]
@@ -99,10 +100,10 @@ def get_annotations_from_JSON(input_collection, input_filename, eval_config):
                 if eval_config.evaluation_type == "span":
                     locations = [annotation_location(location["offset"], location["length"]) for location in annotation["locations"]]
                     if sum(location.length for location in locations) == 0:
-                        log.warning("Ignoring zero-length annotation: document ID = {}, annotation ID = {}".format(document_id, annotation_id))
+                        log.warning("Ignoring zero-length annotation: document ID = {}, annotation ID = {}".format(passage_id, annotation_id))
                         continue
                     if any((location.offset < passage_offset or location.offset + location.length > passage_end) for location in locations):
-                        log.warning("Ignoring annotation with span outside of passage: document ID = {}, annotation ID = {}".format(document_id, annotation_id))
+                        log.warning("Ignoring annotation with span outside of passage: passage ID = {}, annotation ID = {}".format(passage_id, annotation_id))
                         continue
                     locations.sort()
                     annotation_text = annotation["text"]
@@ -110,7 +111,7 @@ def get_annotations_from_JSON(input_collection, input_filename, eval_config):
                     annotation = span_annotation(document["id"], type, tuple(locations), annotation_text)
                     #log.debug("BioCJSON file {} span annotation {}".format(input_filename, str(annotation)))
                     if annotation_text != location_text:
-                        log.error("Annotation text {} does not match text at location(s) {}: document ID = {}, annotation ID = {}".format(annotation_text, location_text, document_id, annotation_id))
+                        log.error("Annotation text {} does not match text at location(s) {}: passage ID = {}, annotation ID = {}".format(annotation_text, location_text, passage_id, annotation_id))
                     annotation_set.add(annotation)
                 if eval_config.evaluation_type == "identifier":
                     for identifier in annotation["infons"]["identifier"].split(","):
@@ -192,17 +193,16 @@ def do_strict_eval(reference_annotations, predicted_annotations):
 
 
 def get_locations(annotations):
-    locations = collections.defaultdict(set)
+    locations = collections.defaultdict(list)
     for annotation in annotations:
-        # if annotation.type == annotation_type:
-            locations[annotation.document_id].update({(annotation.type, offset, offset + length) for offset, length in annotation.locations})
+        locations[annotation.passage_id].append({(annotation.type, offset, offset + length) for offset, length in annotation.locations})
     return locations
 
-def do_approx_span_eval(reference_annotations, predicted_annotations, pool=False):
+def do_approx_span_eval_AnyMatching(reference_annotations, predicted_annotations, pool=False):
     tp1, fn = 0, 0
     predicted_locations = get_locations(predicted_annotations,)
     for annotation in reference_annotations:
-        predicted_locations2 = predicted_locations[annotation.document_id]
+        predicted_locations2 = predicted_locations[annotation.passage_id]
         found = False
         for location in annotation.locations:
             if pool:
@@ -219,7 +219,7 @@ def do_approx_span_eval(reference_annotations, predicted_annotations, pool=False
     tp2, fp = 0, 0
     reference_locations = get_locations(reference_annotations)
     for annotation in predicted_annotations:
-        reference_locations2 = reference_locations[annotation.document_id]
+        reference_locations2 = reference_locations[annotation.passage_id]
         found = False
         for location in annotation.locations:
             if pool:
@@ -239,46 +239,98 @@ def do_approx_span_eval(reference_annotations, predicted_annotations, pool=False
     f = 2.0 * p * r / (p + r)
     return evaluation_result(p, r, f)
 
+# def overlaps(location, start2, end2):
+#     return (location.offset < end2) and (start2 < location.offset + location.length)
 
-# def get_locations(annotations):
-#     locations = collections.defaultdict(set)
-#     for annotation in annotations:
-#         locations[annotation.document_id].update({(offset, offset + length) for offset, length in annotation.locations})
-#     return locations
+# def overlaps(loc1, loc2):
+#     loc1_end = loc1.offset + loc1.length
+#     loc2_end = loc2.offset + loc2.length
+#     return (loc1.offset < loc2_end) and (loc2.offset < loc1_end)
 
-# def do_approx_span_eval(reference_annotations, predicted_annotations):
-#     tp1, fn = 0, 0
-#     predicted_locations = get_locations(predicted_annotations)
-#     for annotation in reference_annotations:
-#         predicted_locations2 = predicted_locations[annotation.document_id]
-#         found = False
-#         for location in annotation.locations:
-#             found |= any([location.offset < end2 and start2 < location.offset + location.length for start2, end2 in predicted_locations2])
-#         if found:
-#             tp1 += 1
-#         else:
-#             fn += 1
-#     log.info("REFERENCE: TP = {0}, FN = {1}".format(tp1, fn))
-#         
-#     tp2, fp = 0, 0
-#     reference_locations = get_locations(reference_annotations)
-#     for annotation in predicted_annotations:
-#         reference_locations2 = reference_locations[annotation.document_id]
-#         found = False
-#         for location in annotation.locations:
-#             found |= any([location.offset < end2 and start2 < location.offset + location.length for start2, end2 in reference_locations2])
-#         if found:
-#             tp2 += 1
-#         else:
-#             fp += 1
-#     log.info("PREDICTED: TP = {0}, FP = {1}".format(tp2, fp))
+def find_approx_match(ref_annotation, predicted_annotations, pool):
+    # given a list of predicted annotations, return the index of the 
+    for ref_loc in ref_annotation.locations:
+        for i, pred_annotation in enumerate(predicted_annotations):
+            if (ref_annotation.passage_id == pred_annotation.passage_id) and \
+              (pool or ref_annotation.type == pred_annotation.type):
+                for pred_loc in pred_annotation.locations:
+                    if overlaps(ref_loc, pred_loc):
+                        return i
+    return -1
 
-#     if tp1 + tp2 == 0:
-#         return evaluation_result(0.0, 0.0, 0.0)
-#     p = tp2 / (tp2 + fp)
-#     r = tp1 / (tp1 + fn)
-#     f = 2.0 * p * r / (p + r)
-#     return evaluation_result(p, r, f)
+def do_approx_span_eval_GREEDY(reference_annotations, predicted_annotations, pool=False):
+    # this one is greedy and the results will depend on the order of the annotations
+    tp, fn, fp = 0, 0, 0
+    
+    unused_predicted_annotations = copy.deepcopy(predicted_annotations)
+    
+    for ref_annotation in reference_annotations:
+        found_ind = find_approx_match(ref_annotation, unused_predicted_annotations, pool)
+        if found_ind == -1:
+            fn += 1
+        else:
+            unused_predicted_annotations.pop(found_ind)
+
+    
+    # remaining predicted spans are false positives
+    fp = len(unused_predicted_annotations)
+        
+    log.info("TP = {0}, FP = {1}, FN = {2}".format(tp, fp, fn))
+
+    if tp == 0:
+        return evaluation_result(0.0, 0.0, 0.0)
+
+    p = tp / (tp + fp)
+    r = tp / (tp + fn)
+    f = 2 * p * r / (p + r)
+    return evaluation_result(p, r, f)
+
+
+def overlaps(start1, end1, start2, end2):
+    return (start1 < end2) and (start2 < end1)
+
+def do_approx_span_eval(reference_annotations, predicted_annotations, pool=False):
+    tp, fn, fp = 0, 0, 0
+
+    ref_locs = get_locations(reference_annotations)
+    pred_locs = get_locations(predicted_annotations)
+    all_docids = set(ref_locs.keys()).union(pred_locs.keys())
+
+    for doc_id in all_docids:
+        refs = ref_locs.get(doc_id, [])
+        preds = pred_locs.get(doc_id, [])
+
+        if not refs:
+            fp += len(preds)
+            continue
+        if not preds:
+            fn += len(refs)
+            continue
+
+        # Cost matrix: 0 = valid match, 1 = invalid
+        cost = np.ones((len(refs), len(preds)))
+
+        for i, (r_type, r_start, r_end) in enumerate(refs):
+            for j, (p_type, p_start, p_end) in enumerate(preds):
+                if overlaps(r_start, r_end, p_start, p_end) and (pool or (r_type == p_type)):
+                    cost[i, j] = 0
+
+        row_ind, col_ind = linear_sum_assignment(cost)
+        matches = sum(cost[r, c] == 0 for r, c in zip(row_ind, col_ind))
+
+        tp += matches
+        fn += len(refs) - matches
+        fp += len(preds) - matches
+
+    if tp == 0:
+        return evaluation_result(0.0, 0.0, 0.0)
+
+    p = tp / (tp + fp)
+    r = tp / (tp + fn)
+    f = 2 * p * r / (p + r)
+    return evaluation_result(p, r, f)
+
+
 
 def get_docid2identifiers(annotations):
     docid2identifiers = collections.defaultdict(set)
@@ -286,34 +338,6 @@ def get_docid2identifiers(annotations):
         if type in annotation_types:
             docid2identifiers[docid].add(identifier)
     return docid2identifiers
-
-def do_approx_identifier_eval(lca_hierarchy, reference_annotations, predicted_annotations):
-    reference_docid2identifiers = get_docid2identifiers(reference_annotations)
-    predicted_docid2identifiers = get_docid2identifiers(predicted_annotations)
-    docids = set(reference_docid2identifiers.keys())
-    docids.update(predicted_docid2identifiers.keys())
-    
-    precision = list()
-    recall = list()
-    f_score = list()
-    for docid in docids:
-        log.info("Evaluating document {}".format(docid))
-        reference_identifiers = reference_docid2identifiers[docid]
-        predicted_identifiers = predicted_docid2identifiers[docid]
-        reference_augmented, predicted_augmented = lca_hierarchy.get_augmented_sets(reference_identifiers, predicted_identifiers)
-        log.info("{}: len(reference_identifiers) = {} len(reference_augmented) = {}".format(docid, len(reference_identifiers), len(reference_augmented)))
-        log.info("{}: len(predicted_identifiers) = {} len(predicted_augmented) = {}".format(docid, len(predicted_identifiers), len(predicted_augmented)))
-        eval_count, _ = calculate_evaluation_count(reference_augmented, predicted_augmented)
-        log.info("{}: TP = {}, FP = {}, FN = {}".format(docid, eval_count.tp, eval_count.fp, eval_count.fn))
-        eval_result = calculate_evaluation_result(eval_count)
-        log.info("{}: P = {:.4f}, R = {:.4f}, F = {:.4f}".format(docid, eval_result.precision, eval_result.recall, eval_result.f_score))
-        precision.append(eval_result.precision)
-        recall.append(eval_result.recall)
-        f_score.append(eval_result.f_score)
-    avg_precision = sum(precision) / len(precision)
-    avg_recall = sum(recall) / len(recall)
-    avg_f_score = sum(f_score) / len(f_score)
-    return evaluation_result(avg_precision, avg_recall, avg_f_score)
 
 def verify_document_sets(reference_passages, predicted_passages):
     verification_errors = list()
@@ -326,17 +350,17 @@ def verify_document_sets(reference_passages, predicted_passages):
         verification_errors.append("Prediction path contains extra documents {}".format(", ".join(predicted_docids - reference_docids)))
     # Verify that the reference and predicted files are the same
     docids = reference_docids.intersection(predicted_docids)
-    for document_id in docids:
-        reference_passage_offsets = set(reference_passages[document_id].keys())
-        predicted_passage_offsets = set(predicted_passages[document_id].keys())
+    for passage_id in docids:
+        reference_passage_offsets = set(reference_passages[passage_id].keys())
+        predicted_passage_offsets = set(predicted_passages[passage_id].keys())
         if len(reference_passage_offsets) != len(predicted_passage_offsets):
-            verification_errors.append("Number of passages does not match for document {0}, {1} != {2}".format(document_id, len(reference_passage_offsets), len(predicted_passage_offsets)))
+            verification_errors.append("Number of passages does not match for document {0}, {1} != {2}".format(passage_id, len(reference_passage_offsets), len(predicted_passage_offsets)))
         elif reference_passage_offsets != predicted_passage_offsets:
-            verification_errors.append("Passage offsets do not match for document {}".format(document_id))
+            verification_errors.append("Passage offsets do not match for document {}".format(passage_id))
         else:
             for offset in reference_passage_offsets:
-                if reference_passages[document_id][offset] != predicted_passages[document_id][offset]:
-                    verification_errors.append("Passage text does not match for document {0}, offset {1}".format(document_id, offset))
+                if reference_passages[passage_id][offset] != predicted_passages[passage_id][offset]:
+                    verification_errors.append("Passage text does not match for document {0}, offset {1}".format(passage_id, offset))
     return verification_errors
 
 def log_entity_types(ref_annotations, prediction_annotations):
@@ -352,10 +376,9 @@ def filter_entity(annotations, entity_to_keep): # entity_to_keep can be string o
 if __name__ == "__main__":
     
     start = datetime.datetime.now()
-    parser = argparse.ArgumentParser(description="Evaluation script for BioCreative 7 Track 2: NLM Chem task")
+    parser = argparse.ArgumentParser(description="Evaluation script for NLM CellLink")
     parser.add_argument("--reference_path", "-r", type=str, required=True, help="path to directory or file containing the reference annotations, i.e. the annotations considered correct")
     parser.add_argument("--prediction_path", "-p", type=str, required=True, help="path to directory or file containing the predicted annotations, i.e. the annotations being evaluated")
-    parser.add_argument("--parents_filename", "-f", type=str, default=None, help="name of file containing MeSH IDs and their parents, only used for approximate identifier evaluation")
     parser.add_argument("--evaluation_type", "-t", choices = {"span", "identifier"}, required=True, help="The type of evaluation to perform")
     parser.add_argument("--evaluation_method", "-m", choices = {"strict", "approx"}, required=True, help="Whether to perform a strict or approximate evaluation")
     parser.add_argument("--annotation_type", "-a", type=str, required=True, help="The annotation type to consider, all others are ignored. 'None' considers all types, but it still must match")
@@ -397,13 +420,6 @@ if __name__ == "__main__":
         eval_result = do_strict_eval(reference_annotations, predicted_annotations)
     elif evaluation_method == "approx" and evaluation_type == "span":
         eval_result = do_approx_span_eval(reference_annotations, predicted_annotations)
-    elif evaluation_method == "approx" and evaluation_type == "identifier":
-        if args.parents_filename is None:
-            raise RuntimeError("Approximate identifier evaluation requires a parents filename")
-        # lca_hierarchy = lca.lca_hierarchy(root)
-        # lca_hierarchy.load_parents(args.parents_filename)
-        # eval_result = do_approx_identifier_eval(lca_hierarchy, reference_annotations, predicted_annotations)
-        raise Exception("not implemented")
     else:
         raise ValueError("Unknown evaluation method: {}".format(evaluation_method))
     print("P = {0:.4f}, R = {1:.4f}, F = {2:.4f}".format(eval_result.precision, eval_result.recall, eval_result.f_score))
