@@ -24,6 +24,7 @@ evaluation_count = collections.namedtuple("evaluation_count", ("tp", "fp", "fn")
 evaluation_result = collections.namedtuple("evaluation_result", ("precision", "recall", "f_score"))
 span_annotation = collections.namedtuple("span_annotation", ("passage_id", "type", "locations", "text"))
 identifier_annotation = collections.namedtuple("identifier_annotation", ("passage_id", "type", "identifier"))
+span_identifier_annotation = collections.namedtuple("span_identifier_annotation", ("passage_id", "type", "locations", "text", "identifier"))
 annotation_location = collections.namedtuple("annotation_location", ("offset", "length"))
 
 def get_annotations_from_XML(input_collection, input_filename, eval_config, NER_blacklist):
@@ -49,17 +50,17 @@ def get_annotations_from_XML(input_collection, input_filename, eval_config, NER_
                 if eval_config.evaluation_type == "span":
                     locations = [annotation_location(int(location.get("offset")), int(location.get("length"))) for location in annotation.findall(".//location")]
                     if sum(location.length for location in locations) == 0:
-                        log.warning("Ignoring zero-length annotation: document ID = {}, annotation ID = {}".format(passage_id, annotation_id))
+                        log.warning("Ignoring zero-length annotation: passage ID = {}, annotation ID = {}".format(passage_id, annotation_id))
                         continue
                     if any((location.offset < passage_offset or location.offset + location.length > passage_end) for location in locations):
-                        log.warning("Ignoring annotation with span outside of passage: document ID = {}, annotation ID = {}".format(passage_id, annotation_id))
+                        log.warning("Ignoring annotation with span outside of passage: passage ID = {}, annotation ID = {}".format(passage_id, annotation_id))
                         continue
                     locations.sort()
                     annotation_text = annotation.find(".//text").text
                     location_text = " ".join([passage_text[offset - passage_offset: offset - passage_offset + length] for offset, length in locations])
                     annotation = span_annotation(passage_id, type, tuple(locations), annotation_text)
                     if annotation_text != location_text:
-                        log.error("Annotation text {} does not match text at location(s) {}: document ID = {}, annotation ID = {}".format(annotation_text, location_text, passage_id, annotation_id))
+                        log.error("Annotation text {} does not match text at location(s) {}: passage ID = {}, annotation ID = {}".format(annotation_text, location_text, passage_id, annotation_id))
                     if not (annotation_text.lower() in NER_blacklist):
                         annotation_set.add(annotation)
                 if eval_config.evaluation_type == "identifier":
@@ -78,48 +79,37 @@ def get_annotations_from_XML(input_collection, input_filename, eval_config, NER_
                         print("using passage idx!")
                         #log.debug("BioCXML file {} identifier annotation {}".format(input_filename, str(annotation)))
                         annotation_set.add(annotation)
-    return annotation_set, passage_text_dict
-
-def get_annotations_from_JSON(input_collection, input_filename, eval_config):
-    annotation_set = set()
-    passage_text_dict = collections.defaultdict(dict)
-    for document in input_collection["documents"]:
-        # document_id = document["id"]
-        for passage in document["passages"]:
-            passage_id = passage["passage_id"]
-            passage_offset = passage["offset"]
-            passage_text = passage.get("text")
-            passage_end = passage_offset + len(passage_text)
-            if passage_text is None:
-                continue
-            passage_text_dict[passage_id][passage_offset] = passage_text
-            for annotation in passage["annotations"]:
-                annotation_id = annotation["id"]
-                type = annotation["infons"]["type"]
-                #if not eval_config.annotation_types is None and not (type in eval_config.annotation_types):
-                #    continue
-                if eval_config.evaluation_type == "span":
-                    locations = [annotation_location(location["offset"], location["length"]) for location in annotation["locations"]]
+                elif eval_config.evaluation_type == "span_identifier":
+                    locations = [annotation_location(int(location.get("offset")), int(location.get("length"))) for location in annotation.findall(".//location")]
                     if sum(location.length for location in locations) == 0:
-                        log.warning("Ignoring zero-length annotation: document ID = {}, annotation ID = {}".format(passage_id, annotation_id))
+                        log.warning("Ignoring zero-length annotation: passage ID = {}, annotation ID = {}".format(passage_id, annotation_id))
                         continue
                     if any((location.offset < passage_offset or location.offset + location.length > passage_end) for location in locations):
                         log.warning("Ignoring annotation with span outside of passage: passage ID = {}, annotation ID = {}".format(passage_id, annotation_id))
                         continue
                     locations.sort()
-                    annotation_text = annotation["text"]
+                    annotation_text = annotation.find(".//text").text
+                    if annotation_text.lower() in NER_blacklist:
+                        continue
+                    identifier_node = annotation.find(".//infon[@key='identifier']")
                     location_text = " ".join([passage_text[offset - passage_offset: offset - passage_offset + length] for offset, length in locations])
-                    annotation = span_annotation(document["id"], type, tuple(locations), annotation_text)
-                    #log.debug("BioCJSON file {} span annotation {}".format(input_filename, str(annotation)))
                     if annotation_text != location_text:
                         log.error("Annotation text {} does not match text at location(s) {}: passage ID = {}, annotation ID = {}".format(annotation_text, location_text, passage_id, annotation_id))
-                    annotation_set.add(annotation)
-                if eval_config.evaluation_type == "identifier":
-                    for identifier in annotation["infons"]["identifier"].split(","):
-                        annotation = identifier_annotation(document["id"], type, identifier)
-                        #log.debug("BioCJSON file {} identifier annotation {}".format(input_filename, str(annotation)))
+                    if identifier_node is None or identifier_node.text is None:
+                        # log.warning("Ignoring annotation {} with no identifier: pseudodoc ID = {}, annotation ID = {}".format(annotation_text, pseudodoc_id, annotation_id))
+                        # continue
+                        annotation = span_identifier_annotation(passage_id, "", tuple(locations), annotation_text, "placeholder")
+                        #log.debug("BioCXML file {} identifier annotation {}".format(input_filename, str(annotation)))
                         annotation_set.add(annotation)
+                    else:
+                        for identifier in identifier_node.text.split(","):
+                            if "CL:" not in identifier:
+                                identifier = "placeholder"
+                            annotation = span_identifier_annotation(passage_id, type, tuple(locations), annotation_text, identifier)
+                            #log.debug("BioCXML file {} identifier annotation {}".format(input_filename, str(annotation)))
+                            annotation_set.add(annotation)
     return annotation_set, passage_text_dict
+
             
 def get_annotations_from_file(input_filename, eval_config, NER_blacklist = []):
     try:
@@ -128,12 +118,6 @@ def get_annotations_from_file(input_filename, eval_config, NER_blacklist = []):
             parser = ElementTree.XMLParser(encoding="utf-8")
             input_collection = ElementTree.parse(input_filename, parser=parser).getroot()
             return get_annotations_from_XML(input_collection, input_filename, eval_config, NER_blacklist)
-        if input_filename.endswith(".json"):
-            raise Exception("did not update with: NER_blacklist")
-            log.info("Reading JSON file {}".format(input_filename))
-            #with codecs.open(input_filename, 'r', encoding="utf8") as input:
-            #    input_collection = json.load(input)
-            #return get_annotations_from_JSON(input_collection, input_filename, eval_config)
         log.info("Ignoring file {}".format(input_filename))
         return set(), dict()
     except Exception as e:
@@ -338,12 +322,12 @@ def do_approx_span_eval(reference_annotations, predicted_annotations, pool=False
 
 
 
-def get_docid2identifiers(annotations):
-    docid2identifiers = collections.defaultdict(set)
-    for docid, type, identifier in annotations:
-        if type in annotation_types:
-            docid2identifiers[docid].add(identifier)
-    return docid2identifiers
+# def get_docid2identifiers(annotations):
+#     docid2identifiers = collections.defaultdict(set)
+#     for docid, type, identifier in annotations:
+#         if type in annotation_types:
+#             docid2identifiers[docid].add(identifier)
+#     return docid2identifiers
 
 def verify_document_sets(reference_passages, predicted_passages):
     verification_errors = list()
@@ -388,47 +372,34 @@ def filter_passages(annotations, passages, reference_passages):
     filtered_annotations = copy.deepcopy([ann for ann in annotations if ann.passage_id in filtered_passages])
     return filtered_annotations, filtered_passages
 
-if __name__ == "__main__":
+
+
+def main(reference_path, prediction_path, evaluation_type, evaluation_method, input_annotation_type, 
+         logging_level, verify_documents, skip_extra_pred_passages):
     
     start = datetime.datetime.now()
-    parser = argparse.ArgumentParser(description="Evaluation script for NLM CellLink")
-    parser.add_argument("--reference_path", "-r", type=str, required=True, help="path to directory or file containing the reference annotations, i.e. the annotations considered correct")
-    parser.add_argument("--prediction_path", "-p", type=str, required=True, help="path to directory or file containing the predicted annotations, i.e. the annotations being evaluated")
-    parser.add_argument("--evaluation_type", "-t", choices = {"span", "identifier"}, required=True, help="The type of evaluation to perform")
-    parser.add_argument("--evaluation_method", "-m", choices = {"strict", "approx"}, required=True, help="Whether to perform a strict or approximate evaluation")
-    parser.add_argument("--annotation_type", "-a", type=str, required=True, help="The annotation type to consider, all others are ignored. 'None' considers all types, but it still must match")
-    parser.add_argument("--logging_level", "-l", type=str, default="INFO", help="The logging level, options are {critical, error, warning, info, debug}")
-    parser.add_argument("--no_document_verification", dest='verify_documents', action='store_const', const=False, default=True, help='Do not verify that reference and predicted document sets match')
-    parser.add_argument("--skip_extra_pred_passages", action='store_true', help="If there are passages only found in the prediction input, then skip them.")
-    
-    args = parser.parse_args()
-    evaluation_type = args.evaluation_type
-    evaluation_method = args.evaluation_method
-    annotation_types = args.annotation_type.split() if not args.annotation_type.lower() == "none" else None
-    logging.basicConfig(level=args.logging_level.upper(), format=log_format)
+    annotation_types = input_annotation_type.split() if not input_annotation_type.lower() == "none" else None
+    logging.basicConfig(level=logging_level.upper(), format=log_format)
     
     if log.isEnabledFor(logging.DEBUG):
-        for arg, value in sorted(vars(args).items()):
+        for arg, value in sorted(locals().items()):
             log.info("Argument {0}: {1}".format(arg, value))
 
     eval_config = evaluation_config(annotation_types, evaluation_type)
-    reference_annotations, reference_passages = get_annotations_from_path(args.reference_path, eval_config)
-    predicted_annotations, predicted_passages = get_annotations_from_path(args.prediction_path, eval_config)
+    reference_annotations, reference_passages = get_annotations_from_path(reference_path, eval_config)
+    predicted_annotations, predicted_passages = get_annotations_from_path(prediction_path, eval_config)
     log.info(f"Extracted {len(reference_annotations)} reference and {len(predicted_annotations)} predicted annotations.")
     log.info("Annotation types extracted:", annotation_types)
     
-    if args.skip_extra_pred_passages:
+    if skip_extra_pred_passages:
         predicted_annotations, predicted_passages = filter_passages(predicted_annotations, predicted_passages, reference_passages)
     
     if (annotation_types is not None) and ("merged" in annotation_types):
         reference_annotations = [ann._replace(type="merged") for ann in reference_annotations]
         predicted_annotations = [ann._replace(type="merged") for ann in predicted_annotations]
-    # else: I'M PRETTY SURE THIS DOES NOTHING! double check before deleting
-    #     filter_entity(reference_annotations, annotation_types)
-    #     filter_entity(predicted_annotations, annotation_types)
     log_entity_types(reference_annotations, predicted_annotations)
     
-    if args.verify_documents:
+    if verify_documents:
         verification_errors = verify_document_sets(reference_passages, predicted_passages)
         for verification_error in verification_errors:
             log.error(verification_error)
@@ -441,5 +412,23 @@ if __name__ == "__main__":
         eval_result = do_approx_span_eval(reference_annotations, predicted_annotations)
     else:
         raise ValueError("Unknown evaluation method: {}".format(evaluation_method))
-    print("P = {0:.3f}, R = {1:.3f}, F = {2:.3f}".format(eval_result.precision, eval_result.recall, eval_result.f_score))
     log.info("Elapsed time: {}".format(datetime.datetime.now() - start))
+    return eval_result
+
+
+if __name__ == "__main__":
+    
+    parser = argparse.ArgumentParser(description="Evaluation script for NLM CellLink")
+    parser.add_argument("--reference_path", "-r", type=str, required=True, help="path to directory or file containing the reference annotations, i.e. the annotations considered correct")
+    parser.add_argument("--prediction_path", "-p", type=str, required=True, help="path to directory or file containing the predicted annotations, i.e. the annotations being evaluated")
+    parser.add_argument("--evaluation_type", "-t", choices = {"span", "identifier"}, required=True, help="The type of evaluation to perform")
+    parser.add_argument("--evaluation_method", "-m", choices = {"strict", "approx"}, required=True, help="Whether to perform a strict or approximate evaluation")
+    parser.add_argument("--annotation_type", "-a", type=str, required=True, help="The annotation type to consider, all others are ignored. 'None' considers all types, but it still must match")
+    parser.add_argument("--logging_level", "-l", type=str, default="INFO", help="The logging level, options are {critical, error, warning, info, debug}")
+    parser.add_argument("--no_document_verification", dest='verify_documents', action='store_const', const=False, default=True, help='Do not verify that reference and predicted document sets match')
+    parser.add_argument("--skip_extra_pred_passages", action='store_true', help="If there are passages only found in the prediction input, then skip them.")
+    
+    args = parser.parse_args()
+    eval_result = main(**vars(args))
+    print("P = {0:.3f}, R = {1:.3f}, F = {2:.3f}".format(eval_result.precision, eval_result.recall, eval_result.f_score))
+
