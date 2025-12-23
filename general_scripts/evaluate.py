@@ -8,9 +8,8 @@ import copy
 import numpy as np
 from scipy.optimize import linear_sum_assignment
 import xml.etree.ElementTree as ElementTree
+import re
 
-
-# partially-edited script from Dr. Leaman is found in "2024 06 27 from Dr Leaman BC7T2-evaluation_v3.zip"
 
 root = "MESH:ROOT"
 log_format = "[%(filename)s:%(lineno)s - %(funcName)s() ] %(message)s"
@@ -65,18 +64,15 @@ def get_annotations_from_XML(input_collection, input_filename, eval_config, NER_
                         annotation_set.add(annotation)
                 if eval_config.evaluation_type == "identifier":
                     identifier_node = annotation.find(".//infon[@key='identifier']")
-                    if identifier_node is None:
+                    ## Robert, can you check how I deal with the identifier field for 
+                    # identifier_annotation and span_identifier_annotation?
+                    # for identifier-only, I split the identifiers. keeping the skos term.
+                    # for identifier_span, I leave the identifier as is
+                    if (identifier_node is None) or (identifier_node.text is None) or \
+                        (identifier_node.text.lower() == "none") or (len(identifier_node.text) == 0):
                         continue
-#                     print(identifier_node.text)
-                    if identifier_node.text is None:
-#                         print("**an identifier is None!!**")
-                        identifier_node.text = "None"
-                    elif not ("CL:" in identifier_node.text):
-                        raise Exception("non-CL ID:" + identifier_node.text)
-                    for identifier in identifier_node.text.split(","):
-                        # annotation = identifier_annotation(passage_id, type, identifier)
+                    for identifier in re.split(',|;', identifier_node.text):
                         annotation = identifier_annotation(str(passage_id), type, identifier)
-                        print("using passage idx!")
                         #log.debug("BioCXML file {} identifier annotation {}".format(input_filename, str(annotation)))
                         annotation_set.add(annotation)
                 elif eval_config.evaluation_type == "span_identifier":
@@ -95,19 +91,15 @@ def get_annotations_from_XML(input_collection, input_filename, eval_config, NER_
                     location_text = " ".join([passage_text[offset - passage_offset: offset - passage_offset + length] for offset, length in locations])
                     if annotation_text != location_text:
                         log.error("Annotation text {} does not match text at location(s) {}: passage ID = {}, annotation ID = {}".format(annotation_text, location_text, passage_id, annotation_id))
-                    if identifier_node is None or identifier_node.text is None:
-                        # log.warning("Ignoring annotation {} with no identifier: pseudodoc ID = {}, annotation ID = {}".format(annotation_text, pseudodoc_id, annotation_id))
-                        # continue
-                        annotation = span_identifier_annotation(passage_id, "", tuple(locations), annotation_text, "placeholder")
-                        #log.debug("BioCXML file {} identifier annotation {}".format(input_filename, str(annotation)))
-                        annotation_set.add(annotation)
+                    if (identifier_node is None) or (identifier_node.text is None) or \
+                        (identifier_node.text.lower() == "none") or (len(identifier_node.text) == 0):
+                        identifier = ""
                     else:
-                        for identifier in identifier_node.text.split(","):
-                            if "CL:" not in identifier:
-                                identifier = "placeholder"
-                            annotation = span_identifier_annotation(passage_id, type, tuple(locations), annotation_text, identifier)
-                            #log.debug("BioCXML file {} identifier annotation {}".format(input_filename, str(annotation)))
-                            annotation_set.add(annotation)
+                        identifier = identifier_node.text
+                    
+                    annotation = span_identifier_annotation(passage_id, type, tuple(locations), annotation_text, identifier)
+                    #log.debug("BioCXML file {} identifier annotation {}".format(input_filename, str(annotation)))
+                    annotation_set.add(annotation)
     return annotation_set, passage_text_dict
 
             
@@ -404,7 +396,7 @@ def main(reference_path, prediction_path, evaluation_type, evaluation_method, in
         for verification_error in verification_errors:
             log.error(verification_error)
         if len(verification_errors) > 0:
-            sys.exit(1)
+            raise Exception("Input and reference documents did not match.")
 
     if evaluation_method == "strict":
         eval_result = do_strict_eval(reference_annotations, predicted_annotations)
