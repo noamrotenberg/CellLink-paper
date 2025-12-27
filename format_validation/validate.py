@@ -3,8 +3,6 @@ import os
 import sys
 import json
 import collections
-import string
-import re
 
 from bioc import biocxml
 
@@ -31,16 +29,10 @@ def validate_identifier_list(annotation, identifier_list, cell_types_dict):
             errors.append(("ERROR", "Comma-separated identifiers are only allowed with \"(skos:related)\"", "Comma-separated identifiers are only allowed with \"(skos:related)\": \"{}\"".format(ellipsis_part)))
         for lookup_identifier in lookup_identifiers:
             if not lookup_identifier in cell_types_dict:
-                # I prepended a 'c' to some annotations as a flag to double check them
-                if lookup_identifier.startswith('c'):
-                    if lookup_identifier[1:] in cell_types_dict:
-                        errors.append(("ERROR", "'c' check flag", f"'c' check flag found ({lookup_identifier} = {cell_types_dict[lookup_identifier[1:]]['name']})"))
-                    else:
-                        errors.append(("ERROR", "'c' check flag", "'c' check flag found"))
-                else:
-                    errors.append(("ERROR", "Identifier not found in cell types dictionary", "Identifier not found in cell types dictionary: \"{}\"".format(lookup_identifier)))
+                errors.append(("ERROR", "Identifier not found in cell types dictionary", "Identifier not found in cell types dictionary: \"{}\"".format(lookup_identifier)))
     
     return errors
+
 
 def process_file(input_filename, standardizer, cell_types_dict):
     if not input_filename.endswith(".xml"):
@@ -68,7 +60,7 @@ def process_file(input_filename, standardizer, cell_types_dict):
                 errors.append(("ERROR", input_filename, passage_id, "Passage does not contain \"article-id_pmid\" infon",  "Passage does not contain \"article-id_pmid\" infon"))
                 continue
             elif "passage_id" in passage.infons and not passage.infons["passage_id"].startswith(pmid + "_"):
-                # Check that the passage_id starts iwth the pmid
+                # Check that the passage_id starts with the pmid
                 errors.append(("ERROR", input_filename, passage_id, "Passage ID does not start with PMID",  "Passage ID (\"{}\") does not start with PMID (\"{}\")".format(passage.infons["passage_id"], pmid)))
                 continue
             pmc = passage.infons.get("article-id_pmc")
@@ -87,8 +79,6 @@ def process_file(input_filename, standardizer, cell_types_dict):
                     errors.append(("ERROR", input_filename, passage_id, "Duplicate annotation", "Annotation #{} text ({}) has a duplicate in the same place".format(ann.id, ann.text)))
             
             for i, annotation in enumerate(passage.annotations):
-                # if annotation.infons['type'] == 'exact_cell_desc':
-                #     annotation.infons['type'] = "cell_desc"
                 if not "type" in annotation.infons:
                     errors.append(("ERROR", input_filename, passage_id, "Annotation does not contain \"type\" infon",  "Annotation does not contain \"type\" infon"))
                 elif not annotation.infons["type"] in {"cell_phenotype", "cell_hetero", "cell_desc"}:
@@ -118,106 +108,25 @@ def process_file(input_filename, standardizer, cell_types_dict):
                     errors.append(("ERROR", input_filename, passage_id, "Annotation text does not match passage", "Annotation #{} text does not match: \"{}\" != \"{}\"".format(annotation.id, passage.text[start:end], annotation.text)))
                     continue
                 
-                # # check for accidental span endpoint issues (warning, not error)
-                # # check if first/last char of an ann is space/punctuation:
-                # flagged_characters = string.whitespace + string.punctuation.replace("+","").replace("-","")
-                # if (annotation.text[0] in flagged_characters) or (annotation.text[-1] in flagged_characters):
-                #     errors.append(("WARNING", input_filename, passage_id, "(warn) Punctuation or whitespace at endpoint(s) of annotation text", "(warn) Annotation #{} text ({}) may contain unnecessary punctuation or whitespace".format(annotation.id, annotation.text)))
-                
-                # # check if first/last word of ann is cut off
-                # passage_text_around_ann = passage.text[max(0, annotation.locations[0].offset - passage.offset - 1) :
-                #                                        min(len(passage.text), annotation.locations[0].end - passage.offset + 1)]
-                # split_passage = re.split(r'[^\w]+', passage_text_around_ann)
-                # split_annotation = re.split(r'[^\w]+', annotation.text)
-                # all values in split_annotation should be in split_passage iff the word is separated by punctuation or whitespace
-                # if (split_annotation[0] not in split_passage) or (split_annotation[-1] not in split_passage):
-                #     errors.append(("WARNING", input_filename, passage_id, "(warn) Annotation may be cut off.", "(warn) Annotation #{} text ({}) may be cut off".format(annotation.id, annotation.text)))
-                
-                # # check for "primary" in the annotation text (warning, not error)
-                # if "primary" in annotation.text.lower():
-                #     errors.append(("WARNING", input_filename, passage_id, "(warn) Annotation text contains the word 'primary'", "(warn) Annotation #{} text contains the word 'primary'".format(annotation.id)))
-                
-                
-                
                 # check for overlapping annotations
                 for ann2 in passage.annotations[i+1:]:
                     # skip if the location, ID, type are exactly the same
                     if not ((annotation.locations[0].offset == ann2.locations[0].offset) and (annotation.text == ann2.text) \
                             and (annotation.infons['identifier'] == ann2.infons['identifier']) and (annotation.infons['type'] == ann2.infons['type'])):
                         # XNOR (exclusive not OR): cell_desc can't overlap with cell_desc; not cell_desc can't overlap with not cell_desc
-                        # (not cell_desc == cell_phenotype or cell_hetero)
+                        # ("not cell_desc" means cell_phenotype or cell_hetero)
                         if not ((annotation.infons['type'] == 'cell_desc') ^ (ann2.infons['type'] == 'cell_desc')):
                             ann1_offset = annotation.locations[0].offset
                             ann2_offset = ann2.locations[0].offset
-                            if ((ann1_offset >= ann2_offset) and (ann1_offset <= ann2.locations[0].end)) or \
-                               ((ann2_offset >= ann1_offset) and (ann2_offset <= annotation.locations[0].end)):
+                            if ((ann1_offset >= ann2_offset) and (ann1_offset < ann2.locations[0].end)) or \
+                               ((ann2_offset >= ann1_offset) and (ann2_offset < annotation.locations[0].end)):
                                    errors.append(("ERROR", input_filename, passage_id, "Overlapping annotations", "Annotation #{} ({}) overlaps with Annotation #{} ({})".format(annotation.id, annotation.text, ann2.id, ann2.text)))
                         else:
                             # overlapping cell_desc & something else. make sure the span isn't exactly the same
                             if annotation.text == ann2.text:
                                 errors.append(("WARNING", input_filename, passage_id, "identical annotations", "cell_desc annotation overlaps exactly with another annotation: ('{}' and '{}')".format(annotation.text, ann2.text)))
-                
-                # 4/23/25 flags:
-                # for flag in lowercase_TC_flags:
-                #     if any(flag == word for word in re.split(r'\W', annotation.text.lower())):
-                #         errors.append(("WARNING", input_filename, passage_id, "hetero T cell flag", "Annotation #{} ({}) might need to be cell_hetero.".format(annotation.id, annotation.text)))
-                        
-                if "ipsc" in annotation.text.lower():
-                    errors.append(("WARNING", input_filename, passage_id, "iPSC flag", "Annotation #{} ({}) contains iPSC.".format(annotation.id, annotation.text)))
-                
-                # if the annotation text is "[something short] immune [something short]" and is cell_pheno or has an ID:
-                if ("immune" in annotation.text.lower()) and (len(annotation.text.lower()) < 15) \
-                    and ((annotation.infons['type'] == "cell_phenotype") or annotation.infons['identifier'] not in [None, "None"]):
-                        errors.append(("WARNING", input_filename, passage_id, "possible immune cell annotation incorrect", "Annotation #{} ({}) might need to be cell_hetero and without ID (immune cells)".format(annotation.id, annotation.text)))
-                
-                # check for '#':
-                if '#' in annotation.text:
-                    errors.append(("WARNING", input_filename, passage_id, "possible cluster #", "Annotation #{} ({}) might need arbitrary numbers removed.".format(annotation.id, annotation.text)))
-                    
-                # check for mentions that end in ')':
-                # if annotation.text[-1] == ')':  
-                #     errors.append(("WARNING", input_filename, passage_id, "annotation ends with ')'", "Annotation #{} ({}) might need equivalent parenthetical removed from span".format(annotation.id, annotation.text)))
-                    
-                # if (("stroma" in annotation.text) or ("CL:0000499" in annotation.infons['identifier'])) and (annotation.infons['type'] == "cell_phenotype"):
-                #     errors.append(("WARNING", input_filename, passage_id, "stromal annotation", "Annotation #{}, ({}) might need to be cell_hetero (stromal)".format(annotation.id, annotation.text)))
-                    
-                # 6/26/25 flag:
-                # if annotation.text.lower() in cell_hetero_flags:
-                #     errors.append(("WARNING", input_filename, passage_id, "cell_hetero to pheno flag", "Annotation #{}, ({}) might need to be cell_pheno.".format(annotation.id, annotation.text)))
-                
-            # # identify nearby words (+/- 10 char) of interest that aren't annotated
-            # for flag in lowercase_nearby_flags:
-            #     num_char_elbow_room = 10 + len(flag)
-            #     for match in re.finditer(flag, passage.text):
-            #         curflag_start_ind = match.start()
-            #         curflag_end_ind = match.end()
-            #         nearby_anns = []
-            #         curflag_within_ann = False
-            #         # loop over all annotations to find annotations that contain or are nearby the flag:
-            #         for annotation in passage.annotations:
-            #             annotation_begin_idx = annotation.locations[0].offset - passage.offset
-            #             annotation_end_idx   = annotation.locations[0].end    - passage.offset
-                        
-            #             if (annotation_begin_idx <= curflag_start_ind) and (curflag_end_ind <= annotation_end_idx):
-            #                 curflag_within_ann = True
-            #             elif (annotation_begin_idx - num_char_elbow_room <= curflag_start_ind) and \
-            #                 (curflag_end_ind - num_char_elbow_room <= annotation_end_idx):
-            #                 nearby_anns.append(annotation)
-                   
-            #         if not curflag_within_ann:
-            #             for annotation in nearby_anns:
-            #                 errors.append(("WARNING", input_filename, passage_id, "nearby_flag is nearby annotation", "Annotation #{} ({}) is nearby the flag word {}".format(annotation.id, annotation.text, flag)))
-                    
-            #     if flag in passage.text[max(0, annotation_begin_idx - num_char_elbow_room) : annotation_begin_idx] or \
-            #         flag in passage.text[annotation_end_idx : annotation_end_idx + num_char_elbow_room]:
-            #         # check if flag overlaps with another annotation:
-            #         flag_offset = passage.text[annotation_begin_idx - num_char_elbow_room : annotation_end_idx + num_char_elbow_room]
-                    
-            #             errors.append(("WARNING", input_filename, passage_id, "nearby_flag is nearby annotation", "Annotation #{} ({}) is nearby the flag word {}".format(annotation.id, annotation.text, flag)))
-                    
     print("Found " + str(len(errors)))
     return errors
-
 
 
 def process_path(input_paths, standardizer, cell_types_dict):
@@ -237,7 +146,6 @@ def process_path(input_paths, standardizer, cell_types_dict):
                 paths_queue.append(full_path)
             else:
                 errors.append(("WARN", entry, None, "Path is not a directory or normal file", "Path \"{}\" ignored: not a directory or normal file".format(full_path)))
-
     return errors
 
 

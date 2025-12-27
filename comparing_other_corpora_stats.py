@@ -161,36 +161,36 @@ print(df.to_string())
 
 # plots
 
+plt.figure()
+for name in ds_names:
+    plt.plot(np.linspace(0, 1, num=len(annotation_groups[name])), 1 / np.repeat(annotation_counts_decrFreq[name],annotation_counts_decrFreq[name])[::-1])
+plt.legend(ds_names)
+plt.title("Distribution of mention frequencies")
+plt.xlabel("Frequency ranking (per-mention)")
+plt.ylabel("1 / frequency")
+plt.show()
+
 # plt.figure()
 # for name in ds_names:
-#     plt.plot(np.linspace(0, 1, num=len(annotation_groups[name])), 1 / np.repeat(annotation_counts_decrFreq[name],annotation_counts_decrFreq[name])[::-1])
+#     plt.plot(np.linspace(0, 1, num=len(annotation_groups[name])), 1 / np.repeat(annotation_counts_decrFreq[name],annotation_counts_decrFreq[name]))
 # plt.legend(ds_names)
-# plt.title("Distribution of mention frequencies")
-# plt.xlabel("Frequency ranking (per-mention)")
+# plt.title("Reciprocal mentions frequency (arranged in decreasing frequency)")
+# plt.xlabel("scaled frequency index (per-mention)")
 # plt.ylabel("1 / frequency")
+# # plt.annotate("This plot says ~25% of anns\n appear once,\n ~8% twice, etc", (0, .25))
 # plt.show()
 
-# # plt.figure()
-# # for name in ds_names:
-# #     plt.plot(np.linspace(0, 1, num=len(annotation_groups[name])), 1 / np.repeat(annotation_counts_decrFreq[name],annotation_counts_decrFreq[name]))
-# # plt.legend(ds_names)
-# # plt.title("Reciprocal mentions frequency (arranged in decreasing frequency)")
-# # plt.xlabel("scaled frequency index (per-mention)")
-# # plt.ylabel("1 / frequency")
-# # # plt.annotate("This plot says ~25% of anns\n appear once,\n ~8% twice, etc", (0, .25))
-# # plt.show()
-
-# cutoff = 8
-# plt.figure()
-# for name in ds_names:
-#     plt.plot( np.arange(cutoff)+1, [np.sum(np.asarray(annotation_counts_decrFreq[name]) <= i) / len(annotation_counts_decrFreq[name]) for i in range(len(annotation_counts_decrFreq[name]))][1:cutoff+1] )
-# plt.legend(ds_names)
-# plt.title("Cumulative count of unique mentions*")
-# plt.xlabel("Frequency")
-# plt.ylabel("Fraction of unique mentions with count <= x")
-# plt.ylim(0, 1)
-# plt.show()
-# # * cut-off at {cutoff}
+cutoff = 8
+plt.figure()
+for name in ds_names:
+    plt.plot( np.arange(cutoff)+1, [np.sum(np.asarray(annotation_counts_decrFreq[name]) <= i) / len(annotation_counts_decrFreq[name]) for i in range(len(annotation_counts_decrFreq[name]))][1:cutoff+1] )
+plt.legend(ds_names)
+plt.title("Cumulative count of unique mentions*")
+plt.xlabel("Frequency")
+plt.ylabel("Fraction of unique mentions with count <= x")
+plt.ylim(0, 1)
+plt.show()
+# * cut-off at {cutoff}
 
 
 # plots that are interesting but we didn't keep:
