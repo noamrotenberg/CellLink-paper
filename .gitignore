@@ -1,4 +1,3 @@
-NER-exp1-corpusComparisons/filtered_corpora/*
 *model*
 !NER-exp2-multipleModels
 **__pycache__**
