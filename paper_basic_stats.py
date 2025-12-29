@@ -156,12 +156,30 @@ def ID_is_None(identifier):
         return False
 
 
+# def ID_is_exact(identifier):
+#     if "(skos:related)" in identifier:
+#         return False
+#     elif "-" in identifier:
+#         return False
+#     elif "(skos:exact)" in identifier:
+#         return True
+#     else:
+#         return False
+
+
 def ID_is_exact(identifier):
+    print(identifier, end='\t', file=writefp)
     if "(skos:related)" in identifier:
+        print(False, file=writefp)
+        return False
+    elif "-" in identifier:
+        print(False, file=writefp)
         return False
     elif "(skos:exact)" in identifier:
+        print(True, file=writefp)
         return True
     else:
+        print(False, file=writefp)
         return False
 
 
@@ -213,6 +231,7 @@ def pretty_fraction_string(numerator, denominator, num_sig_figs):
 def get_all_tokens(list_of_strings):
     all_tokens = []
     for s in list_of_strings:
+        # this is our tokenization:
         all_tokens += re.findall(r'\b\w+\b', s.replace("_", " ").lower())
     return all_tokens
 
@@ -640,7 +659,9 @@ def plot_IAA(filepath):
 
 with open(merged_collection_path, 'r', encoding='utf-8') as readfp:
     merged_collection = bioc.load(readfp)
-df1 = general_stats(merged_collection)
+
+with open("tmp.txt", 'w') as writefp:
+    df1 = general_stats(merged_collection, writefp)
 df1_T = df1.T
 
 
@@ -667,7 +688,7 @@ def train_val_test_stats(tdt_split_path, writefp=None, ds_names = ['train', 'dev
     tri_differential_analysis(datasets, ds_names)
 
 
-train_val_test_stats(train_dev_test_split_path, None)
+# train_val_test_stats(train_dev_test_split_path, None) ### uncomment
 # with open(os.path.join(train_dev_test_split_path, "Noam_stats.txt"), 'w') as writefp:
 #     train_val_test_stats(train_dev_test_split_path, writefp)
 

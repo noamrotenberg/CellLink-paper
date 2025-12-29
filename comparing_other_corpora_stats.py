@@ -106,8 +106,8 @@ for name in ds_names:
 
     # unique_PMIDs = set([p.infons['article-id_pmid'] for p in passages])
     
-    stats[name]["num passages"] = len(passage_groups[name])
-    stats[name]["num passages w/ >0 annotations"] = len([1 for p in passage_groups[name] if len(p.annotations) > 0])
+    # stats[name]["num passages"] = len(passage_groups[name])
+    # stats[name]["num passages w/ >0 annotations"] = len([1 for p in passage_groups[name] if len(p.annotations) > 0])
     stats[name]["num sentences"] = sum([len(sent_tokenize(p.text)) for p in passage_groups[name]])
     
     # print("number of PMIDs used:", len(unique_PMIDs), file=writefp)
@@ -120,15 +120,15 @@ for name in ds_names:
     
     stats[name]["num annotations per 100 tokens"] = stats[name]["num annotations"] * 100 / stats[name]["num tokens"]
     
-    anns_per_passage = [len(p.annotations) for p in passage_groups[name]]
-    stats[name]["num annotations/passage (mean, median, min, max)"] = \
-        f"{np.mean(anns_per_passage):.1f}, {np.median(anns_per_passage)}, {np.min(anns_per_passage)}, {np.max(anns_per_passage)}"
+    # anns_per_passage = [len(p.annotations) for p in passage_groups[name]]
+    # stats[name]["num annotations/passage (mean, median, min, max)"] = \
+    #     f"{np.mean(anns_per_passage):.1f}, {np.median(anns_per_passage)}, {np.min(anns_per_passage)}, {np.max(anns_per_passage)}"
     
     
     # average annotation length
     ann_lengths = [len(ann.text) for ann in annotation_groups[name]]
-    stats[name]["ann length (mean +/- std, median, min, max)"] = \
-        f"{np.mean(ann_lengths):.1f} +/- {np.std(ann_lengths):.1f}, {np.median(ann_lengths)}, {np.min(ann_lengths)}, {np.max(ann_lengths)}"
+    stats[name]["ann length (mean +/- std)"] = f"{np.mean(ann_lengths):.1f} +/- {np.std(ann_lengths):.1f}"
+    stats[name]["ann length (min, median, max)"] = f"{np.min(ann_lengths)}, {np.median(ann_lengths)}, {np.max(ann_lengths)}"
 
 
     stats[name]['num unique mentions'] = len(set([ann.text for ann in annotation_groups[name]]))
@@ -139,7 +139,7 @@ for name in ds_names:
     unique_IDs = get_unique_IDs(annotation_groups[name])
     if all([ID in [None, "None"] for ID in unique_IDs]):
         stats[name]['num unique ID'] = 0
-        stats[name]['num unique no-ID & related (novel/unreported) mentions'] = 0
+        stats[name]['num unique no-ID & related (novel/unreported) mentions'] = "N/A"
     else:
         stats[name]['num unique ID'] = len(unique_IDs)
         if "all other" in name:
