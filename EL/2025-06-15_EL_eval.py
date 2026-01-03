@@ -4,7 +4,6 @@ Created on Mon May 12 09:46:43 2025
 
 @author: rotenbergnh
 
-# based off of 2025-05-12_KRISSBERT_eval.py
 """
 
 import bioc
@@ -24,17 +23,6 @@ with open(input_path, 'r', encoding='utf-8') as readfp:
     input_collection = bioc.load(readfp)
 
 
-# ###*** REMOVE AFTER FINAL CONSISTENCY CHECKS:
-# for doc in input_collection.documents:
-#     for p in doc.passages:
-#         for ann in p.annotations:
-#             if "cCL" in ann.infons['identifier']:
-#                 # print(ann.infons['identifier'])
-#                 ann.infons['identifier'] = ann.infons['identifier'].replace('cCL','CL')
-#             elif '(skos:exact)c' in ann.infons['identifier']:
-#                 # print(ann.infons['identifier'])
-#                 ann.infons['identifier'] = ann.infons['identifier'].replace('(skos:exact)c','')
-
 def exactIDsOnly_iterator(bioc_collection):
     # iterate only over annotations that have a single identifier
     # skip coordination ellipses; skip related annotations iff more than 1 ID
@@ -49,6 +37,7 @@ def exactIDsOnly_iterator(bioc_collection):
                         print(ann.infons['identifier'], identifier_i)
                     yield (p, ann, (identifier_i, ))
 
+# we didn't use this but it could be interesting:
 # def singleIDsOnly_iterator(bioc_collection):
 #     # iterate only over annotations that have a single identifier
 #     # skip coordination ellipses; skip related annotations iff more than 1 ID
@@ -122,7 +111,6 @@ for entity_types in [["cell_phenotype"], ["cell_hetero"], ["cell_phenotype", "ce
 
 
 
-##### maybe should go in a separate file
 # analyze SapBERT confidence
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -178,7 +166,7 @@ for linkage_type in linkage_types:
              bins= np.linspace(0, 1, 21), 
              edgecolor='black', alpha=0.5, label=linkage_type)
 plt.legend()
-plt.title("SapBERT confidence in EL")
+plt.title("SapBERT confidence by linkage type")
 plt.xlabel("SapBERT cosine similarity")
 plt.ylabel("number of mentions")
 plt.show()
@@ -197,9 +185,9 @@ if True:
     # thresholds[thresholds > 0.5][0]
     
     auc = sklearn.metrics.auc(fpr, tpr)
-    plt.text(0.6, 0.2, f'AUC = {auc:.2f}', fontsize=12)
+    # plt.text(0.6, 0.2, f'AUC = {auc:.2f}', fontsize=12)
     # plt.title("ROC curve of 'in ontology AND SAPBERT prediction correct' vs.\n 'not in ontology OR SAPBERT prediction wrong'")
-    plt.title("ROC curve of SapBERT success based on confidence")
+    plt.title("ROC curve of SapBERT successful matching based on confidence")
     plt.show()
     plt.figure()
     

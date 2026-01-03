@@ -22,8 +22,8 @@ CRAFT_path = "NER-exp1-corpusComparisons/filtered_corpora/CRAFT"
 JNLPBA_path = "NER-exp1-corpusComparisons/filtered_corpora/JNLPBA"
 
 
-sourceData_NLP_path = r"C:\Users\rotenbergnh\OneDrive - National Institutes of Health\cell type NLP extraction\2024-10-23_SourceData-NLP_dataset\2024-10-23_cell_types_only\all.xml"
-
+# sourceData_NLP_path = r"C:\Users\rotenbergnh\OneDrive - National Institutes of Health\cell type NLP extraction\2024-10-23_SourceData-NLP_dataset\2024-10-23_cell_types_only\all.xml"
+sourceData_NLP_path = r"C:\Users\rotenbergnh\OneDrive - National Institutes of Health\cell type NLP extraction\2024-10-23_SourceData-NLP_dataset\all_from_Robert_with_IDs.xml"
 
 datasets = [("NLM CellLink", our_data_path), ("AnatEM", AnatEM_path), ("BioID", BioID_path), ("CRAFT", CRAFT_path), ("JNLPBA", JNLPBA_path), ("sourceData_NLP", sourceData_NLP_path)]
 ds_names = [ds[0] for ds in datasets]
@@ -61,6 +61,8 @@ def get_passages_from_path(path):
                     with open(filepath_i, 'r', encoding='utf-8') as readfp:
                         bioc_collection_i = bioc.load(readfp)
                         passages += [p for doc in bioc_collection_i.documents for p in doc.passages]
+    else:
+        raise Exception("path not a file or directory: " + path)
     return passages
 
 
@@ -147,7 +149,8 @@ for name in ds_names:
         # elif (None in unique_IDs) or ("None" in unique_IDs):
         else:
             stats[name]['num unique no-ID & related (novel/unreported) mentions'] = len(set([ann.text for ann in annotation_groups[name] if (ann.infons.get('identifier') in [None, "None"]) \
-                                                                                             or ("rel" in ann.infons.get("identifier","")) or (',' in ann.infons.get("identifier", ""))]))
+                                                                                             or ("rel" in ann.infons.get("identifier","")) or (',' in ann.infons.get("identifier", "")) \
+                                                                                             or ("CL" not in ann.infons.get("identifier", ""))]))
         # else:
         #     stats[name]['num unique no-ID & related (novel/unreported) mentions'] = 0
                 

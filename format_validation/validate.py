@@ -34,6 +34,36 @@ def validate_identifier_list(annotation, identifier_list, cell_types_dict):
     return errors
 
 
+def overlaps(ann1, ann2):
+    ann1_offset = ann1.locations[0].offset
+    ann2_offset = ann2.locations[0].offset
+    ann1_end = ann1.locations[0].end
+    ann2_end = ann2.locations[0].end
+    if ((ann1_offset >= ann2_offset) and (ann1_offset < ann2_end)) or \
+       ((ann2_offset >= ann1_offset) and (ann2_offset < ann1_end)):
+           return True
+    else:
+        return False
+
+def encapsulates(ann1, ann2):
+    # check whether ann1 completely encapsulates ann2
+    ann1_offset = ann1.locations[0].offset
+    ann2_offset = ann2.locations[0].offset
+    ann1_end = ann1.locations[0].end
+    ann2_end = ann2.locations[0].end
+    return ((ann1_offset <= ann2_offset) and (ann1_end >= ann2_end))
+
+def get_cell_desc_length(ann1, ann2):
+    # given 2 annotations, one of which is cell_desc, get its length
+    if ann1.infons['type'] == "cell_desc":
+        cell_desc_annotation = ann1
+    elif ann2.infons['type'] == "cell_desc":
+        cell_desc_annotation = ann2
+    else:
+        raise Exception("Only 1 cell_desc annotation was expected")
+    return len(cell_desc_annotation.text)
+
+
 def process_file(input_filename, standardizer, cell_types_dict):
     if not input_filename.endswith(".xml"):
         return [("WARN", input_filename, None, "File does not end in \".xml\"", "File \"{}\" ignored: does not end in \".xml\"".format(input_filename))]
@@ -44,14 +74,14 @@ def process_file(input_filename, standardizer, cell_types_dict):
         for passage_index, passage in enumerate(document.passages):
             passage_id = passage.infons["passage_id"] if "passage_id" in passage.infons else "#{}".format(passage_index)
             
-            if not "annotatable" in passage.infons:
-                errors.append(("ERROR", input_filename, passage_id, "Passage does not contain \"annotatable\" infon",  "Passage does not contain \"annotatable\" infon"))
-                continue
-            elif not passage.infons["annotatable"] in {"no", "yes"}:
-                errors.append(("ERROR", input_filename, passage_id, "Passage \"annotatable\" infon value is unknown",  "Passage \"annotatable\" infon value is unknown: {}".format(passage.infons["annotatable"])))
-                continue
-            if passage.infons["annotatable"] == "no":
-                continue
+            # if not "annotatable" in passage.infons:
+            #     errors.append(("ERROR", input_filename, passage_id, "Passage does not contain \"annotatable\" infon",  "Passage does not contain \"annotatable\" infon"))
+            #     continue
+            # elif not passage.infons["annotatable"] in {"no", "yes"}:
+            #     errors.append(("ERROR", input_filename, passage_id, "Passage \"annotatable\" infon value is unknown",  "Passage \"annotatable\" infon value is unknown: {}".format(passage.infons["annotatable"])))
+            #     continue
+            # if passage.infons["annotatable"] == "no":
+            #     continue
             if not "passage_id" in passage.infons:
                 errors.append(("ERROR", input_filename, passage_id, "Passage does not contain \"passage_id\" infon",  "Passage does not contain \"passage_id\" infon"))
                 continue
@@ -110,21 +140,28 @@ def process_file(input_filename, standardizer, cell_types_dict):
                 
                 # check for overlapping annotations
                 for ann2 in passage.annotations[i+1:]:
-                    # skip if the location, ID, type are exactly the same
-                    if not ((annotation.locations[0].offset == ann2.locations[0].offset) and (annotation.text == ann2.text) \
-                            and (annotation.infons['identifier'] == ann2.infons['identifier']) and (annotation.infons['type'] == ann2.infons['type'])):
-                        # XNOR (exclusive not OR): cell_desc can't overlap with cell_desc; not cell_desc can't overlap with not cell_desc
-                        # ("not cell_desc" means cell_phenotype or cell_hetero)
-                        if not ((annotation.infons['type'] == 'cell_desc') ^ (ann2.infons['type'] == 'cell_desc')):
-                            ann1_offset = annotation.locations[0].offset
-                            ann2_offset = ann2.locations[0].offset
-                            if ((ann1_offset >= ann2_offset) and (ann1_offset < ann2.locations[0].end)) or \
-                               ((ann2_offset >= ann1_offset) and (ann2_offset < annotation.locations[0].end)):
-                                   errors.append(("ERROR", input_filename, passage_id, "Overlapping annotations", "Annotation #{} ({}) overlaps with Annotation #{} ({})".format(annotation.id, annotation.text, ann2.id, ann2.text)))
-                        else:
-                            # overlapping cell_desc & something else. make sure the span isn't exactly the same
-                            if annotation.text == ann2.text:
-                                errors.append(("WARNING", input_filename, passage_id, "identical annotations", "cell_desc annotation overlaps exactly with another annotation: ('{}' and '{}')".format(annotation.text, ann2.text)))
+                    if overlaps(annotation, ann2):
+                           
+                           # XNOR (exclusive not OR): cell_desc can't overlap with cell_desc; not cell_desc can't overlap with not cell_desc
+                           # ("not cell_desc" means cell_phenotype or cell_hetero)
+                           if not ((annotation.infons['type'] == 'cell_desc') ^ (ann2.infons['type'] == 'cell_desc')):
+                               errors.append(("ERROR", input_filename, passage_id, "Overlapping annotations", "Annotation #{} ({}) overlaps with Annotation #{} ({})".format(annotation.id, annotation.text, ann2.id, ann2.text)))
+                           else:
+                               # ensure that the cell_desc annotation fully encapsulates the other annotation
+                               if not (encapsulates(annotation, ann2) or encapsulates(ann2, annotation)):
+                                   errors.append(("ERROR", input_filename, passage_id, "Partially overlapping annotations", "Annotation #{} ({}) overlaps with Annotation #{} ({}); cell_desc must completely encapsulate the other annotation".format(annotation.id, annotation.text, ann2.id, ann2.text)))
+                               else:
+                                   # since 1 annotation encapsulates another, ensure that 
+                                   # the cell_desc annotation is longer
+                                   if min(len(annotation.text), len(ann2.text)) >= get_cell_desc_length(annotation, ann2):
+                                       errors.append(("ERROR", input_filename, passage_id, "cell_desc is encapsulated", "Annotation #{} ({}) overlaps with Annotation #{} ({}); cell_desc must encapsulate the other annotation".format(annotation.id, annotation.text, ann2.id, ann2.text)))
+                                   
+                    
+                    if ((annotation.infons['type'] == 'cell_desc') ^ (ann2.infons['type'] == 'cell_desc')):
+                        # overlapping cell_desc & something else. make sure the span isn't exactly the same
+                        if annotation.text == ann2.text:
+                            errors.append(("WARNING", input_filename, passage_id, "identical annotations", "cell_desc annotation overlaps exactly with another annotation: ('{}' and '{}')".format(annotation.text, ann2.text)))    
+                
     print("Found " + str(len(errors)))
     return errors
 
@@ -152,7 +189,7 @@ def process_path(input_paths, standardizer, cell_types_dict):
 if __name__ == "__main__":
     if len(sys.argv) == 5:
         input_path = sys.argv[1]
-        names_filename = sys.argv[2]
+        names_filename = sys.argv[2] # "../Cell-Ontology_v2025-01-08.json"
         docids_filename = sys.argv[3]
         output_path = sys.argv[4]
     else:

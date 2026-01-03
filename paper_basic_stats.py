@@ -182,6 +182,17 @@ def ID_is_exact(identifier):
         print(False, file=writefp)
         return False
 
+def ID_is_exact(identifier):
+    if "(skos:related)" in identifier:
+        return False
+    elif "-" in identifier:
+        return False
+    elif "(skos:exact)" in identifier:
+        return True
+    elif "None" == identifier:
+        return False
+    else:
+        raise Exception("Identifier qualifiers not formatted as expected.")
 
 def nonexact_IDs(identifier):
     answer = []
