@@ -55,13 +55,11 @@ def encapsulates(ann1, ann2):
 
 def get_cell_desc_length(ann1, ann2):
     # given 2 annotations, one of which is cell_desc, get its length
-    if ann1.infons['type'] == "cell_desc":
-        cell_desc_annotation = ann1
-    elif ann2.infons['type'] == "cell_desc":
-        cell_desc_annotation = ann2
+    cell_desc_annotations = [ann for ann in [ann1, ann2] if ann.infons['type'] == 'cell_desc']
+    if len(cell_desc_annotations) != 1:
+        raise Exception("Only 1 cell_desc annotation was expected.")
     else:
-        raise Exception("Only 1 cell_desc annotation was expected")
-    return len(cell_desc_annotation.text)
+        return len(cell_desc_annotations[0].text)
 
 
 def process_file(input_filename, standardizer, cell_types_dict):
@@ -73,15 +71,6 @@ def process_file(input_filename, standardizer, cell_types_dict):
     for document in collection.documents:
         for passage_index, passage in enumerate(document.passages):
             passage_id = passage.infons["passage_id"] if "passage_id" in passage.infons else "#{}".format(passage_index)
-            
-            # if not "annotatable" in passage.infons:
-            #     errors.append(("ERROR", input_filename, passage_id, "Passage does not contain \"annotatable\" infon",  "Passage does not contain \"annotatable\" infon"))
-            #     continue
-            # elif not passage.infons["annotatable"] in {"no", "yes"}:
-            #     errors.append(("ERROR", input_filename, passage_id, "Passage \"annotatable\" infon value is unknown",  "Passage \"annotatable\" infon value is unknown: {}".format(passage.infons["annotatable"])))
-            #     continue
-            # if passage.infons["annotatable"] == "no":
-            #     continue
             if not "passage_id" in passage.infons:
                 errors.append(("ERROR", input_filename, passage_id, "Passage does not contain \"passage_id\" infon",  "Passage does not contain \"passage_id\" infon"))
                 continue
@@ -151,8 +140,7 @@ def process_file(input_filename, standardizer, cell_types_dict):
                                if not (encapsulates(annotation, ann2) or encapsulates(ann2, annotation)):
                                    errors.append(("ERROR", input_filename, passage_id, "Partially overlapping annotations", "Annotation #{} ({}) overlaps with Annotation #{} ({}); cell_desc must completely encapsulate the other annotation".format(annotation.id, annotation.text, ann2.id, ann2.text)))
                                else:
-                                   # since 1 annotation encapsulates another, ensure that 
-                                   # the cell_desc annotation is longer
+                                   # since 1 annotation encapsulates another, ensure that the cell_desc annotation is longer
                                    if min(len(annotation.text), len(ann2.text)) >= get_cell_desc_length(annotation, ann2):
                                        errors.append(("ERROR", input_filename, passage_id, "cell_desc is encapsulated", "Annotation #{} ({}) overlaps with Annotation #{} ({}); cell_desc must encapsulate the other annotation".format(annotation.id, annotation.text, ann2.id, ann2.text)))
                                    
