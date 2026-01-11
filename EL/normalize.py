@@ -34,13 +34,16 @@ OpenAI_embeddings_cache_path = sys.argv[5]
 
 topn = 10
 
-model_names = {
-    "SapBERT": "./SapBERT-from-PubMedBERT-fulltext",
-    "MedCPT-Query": "ncbi/MedCPT-Query-Encoder",
-    "OpenAI-txt-emb-3-L": "text-embedding-3-large",
-    "GPT-4.1_Agent": "gpt-4.1",
-    }
+# model_names = {
+#     "SapBERT": "cambridgeltl/SapBERT-from-PubMedBERT-fulltext",
+#     "MedCPT-Query": "ncbi/MedCPT-Query-Encoder",
+#     "OpenAI-txt-emb-3-L": "text-embedding-3-large",
+#     "GPT-5.2_Agent": "gpt-5.2",
+#     }
 
+model_names = {
+    "GPT-5.2_Agent": "gpt-5.2",
+    }
 
 
 def load_terms(filename):
@@ -392,6 +395,7 @@ def run_agent_inference(model_name, term_id_pairs, mentions, abbr):
     query_cache = OpenAI_embeddings_cache.get(model_name + "_Agent", dict())
     expanded_text_dict = dict()
     # start = datetime.datetime.now()
+    new_terms_counter = 0
     for index, (document_id, mention_text) in enumerate(tqdm(mentions)):
         expanded_text = abbr.expand(document_id, mention_text, expanded_text_dict)
         if expanded_text in query_cache:
@@ -405,17 +409,24 @@ def run_agent_inference(model_name, term_id_pairs, mentions, abbr):
             #     print(f"querying: {mention_text} via {expanded_text}")
             # else:
             #     print("querying:", expanded_text)
-            # try:
-            top_ID = oak_agent.link_text(agent, expanded_text).identifier
-            # except Exception as e:
-            #     print("Could not link", expanded_text, "due to Exception:", e)
+            for attempt in range(5):
+                try:
+                    top_ID = oak_agent.link_text(agent, expanded_text).identifier
+                    break
+                except Exception as e:
+                    print("attempt", attempt+1, "failed for mention", expanded_text)
+                    print("exception", e)
+                    if attempt == 4:
+                        raise
             topn_results = [("-", top_ID, 0)]
             query_cache[expanded_text] = topn_results
-            if (index % 5 == 0) or (index == len(mentions) - 1):
+            new_terms_counter += 1
+            if (new_terms_counter == 20) or (index == len(mentions) - 1):
                 # save cache
                 OpenAI_embeddings_cache[model_name + "_Agent"] = query_cache
                 with open(OpenAI_embeddings_cache_path, 'w') as writefp:
                     json.dump(OpenAI_embeddings_cache, writefp)
+                new_terms_counter = 0
         normalized[(document_id, mention_text)] = topn_results
     return normalized
 

@@ -12,9 +12,9 @@ import json
 
 input_path = "../../model_outputs/EL_test_output.xml"
 
-model_names = ["SapBERT", "MedCPT-Query", "OpenAI-txt-emb-3-L", "GPT-4.1_Agent"]
+model_names = ["SapBERT", "MedCPT-Query", "OpenAI-txt-emb-3-L", "GPT-5.2_Agent"]
 
-CL_names_filename = r"C:\Users\rotenbergnh\OneDrive - National Institutes of Health\cell type NLP extraction\2024-12-30_annotation_files\validation\cl.json"
+CL_names_filename = "../CL_v2025-01-08.json"
 with open(CL_names_filename, "r") as file:
     cell_types_dict = json.load(file)
 
@@ -34,7 +34,7 @@ def exactIDsOnly_iterator(bioc_collection):
                     (';' not in identifier_i) and (',' not in identifier_i) and ("related" not in identifier_i):
                     identifier_i = identifier_i.replace("(skos:exact)", "")
                     if identifier_i not in cell_types_dict:
-                        print(ann.infons['identifier'], identifier_i)
+                        raise Exception(f"Could not find {identifier_i} in CLv2025-01-08.")
                     yield (p, ann, (identifier_i, ))
 
 # we didn't use this but it could be interesting:
@@ -49,7 +49,7 @@ def exactIDsOnly_iterator(bioc_collection):
 #                     (';' not in identifier_i) and (',' not in identifier_i):
 #                     identifier_i = identifier_i.replace("(skos:exact)", "").replace("(skos:related)", "")
 #                     if identifier_i not in cell_types_dict:
-#                         print(ann.infons['identifier'], identifier_i)
+#                         raise Exception(f"Could not find {identifier_i} in CLv2025-01-08.")
 #                     yield (p, ann, (identifier_i, ))
 
 def allLabels_iterator(bioc_collection):
@@ -67,7 +67,7 @@ def allLabels_iterator(bioc_collection):
                     all_IDs = list(filter(lambda x: x not in ['-', ''], all_IDs))
                     
                     if any([ID_i not in cell_types_dict for ID_i in all_IDs]):
-                        print(ann.infons['identifier'], all_IDs)
+                        raise Exception(f"Could not find {all_IDs} in CLv2025-01-08.")
                     
                     yield (p, ann, all_IDs)
                     
@@ -141,7 +141,7 @@ def simpleLabels_NoCoordEllipses_iterator(bioc_collection):
                         all_IDs = list(filter(lambda x: x not in ['-', ''], all_IDs))
                         
                         if any([ID_i not in cell_types_dict for ID_i in all_IDs]):
-                            print(ann.infons['identifier'], all_IDs)
+                            raise Exception(f"Could not find {all_IDs} in CLv2025-01-08.")
                         
                         SapBERT_id1 = ann.infons['SapBERT_id_0']
                         SapBERT_top1_correct = SapBERT_id1 in all_IDs

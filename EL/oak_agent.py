@@ -35,12 +35,15 @@ def set_up_model(model_name):
     oak_agent = pydantic_ai.Agent(  
         model,
         system_prompt="""
-        You are an expert ontology curator. Use the ontologies at your disposal to
-        answer the user's questions.
+        You are an expert ontology curator. Use the Cell Ontology search tool at your 
+        disposal find an identifier that best matches the user's input cell type.
+        Not all inputs can be linked. Choose the best match if you cannot find exactly 
+        what you're looking for after querying the ontology in a few different ways.
         """,
         tools=[search_CL],
         result_type=CL_identifier,
         model_settings={"do_sample": False}
+        # note: even with do_sample=False, the agent does not appear to be deterministic
     )
 
     # print("oak_agent:", oak_agent)
@@ -72,16 +75,25 @@ def search_CL(term: str) -> List[Tuple[str, str]]:
         A list of tuples, each containing a CL ID and a label.
     """
     adapter = get_adapter("ols:cl")
-    print("Agent query:", term)
+    # print("Agent query:", term)
     results = adapter.basic_search(term)
-    labels = list(adapter.labels(results))
-    # print(f"## Query: {term} -> {labels}")
-    return labels
+    results = list(adapter.labels(results))
+    
+    # remove any terms imported from other ontologies
+    results = list(filter(lambda r: (r[0] is not None) and (r[0].startswith("CL:")), results))
+    results = results[:20] # limit to first 20 results
+    if len(results) == 0:
+        results = "No results were found. Try another query."
+        # without adding this text, the model sometimes repeatedly makes the same call
+    print(f"## Agent query: {term} -> {results}")
+    return results
 
 
 
 def link_text(agent, text: str) -> CL_identifier:
+    print("Term to link:", text)
     result = agent.run_sync(text)
+    print("Linked to", result.output, end='\n\n')
     return result.output
 
 async def async_link_text(agent, text: str) -> CL_identifier:
