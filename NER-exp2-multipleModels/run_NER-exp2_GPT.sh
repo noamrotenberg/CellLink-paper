@@ -1,18 +1,14 @@
 #!/bin/bash
 
 CELLLINK_PATH="../../NLM_CellLink_data"
-
-# before this script, run the following:
-# python ..\general_scripts\split_BioCXML_files_by_entity_type.py $CELLLINK_PATH $CELLLINK_PATH/splits_by_entity_type
-# python src/BioCXML_to_LLMjson.py $CELLLINK_PATH/splits_by_entity_type $CELLLINK_PATH/LLM_json_format/
+source ../../../agent_env/bin/activate
 
 
 # run GPT 0-shot inference:
-source ../../agent_env/bin/activate
 export endpoint= ### insert endpoint url
 export api_key= ### insert Azure API key
-ZEROSHOT_OUTPUT_PATH=../../model_outputs/NER-exp2_zeroshot_gpt4_1.xml
-python src/OpenAI_zeroshot_inference.py $CELLLINK_PATH/test.xml $ZEROSHOT_OUTPUT_PATH ../../model_outputs/NER-exp2_zeroshot_cache.json gpt-4.1
+ZEROSHOT_OUTPUT_PATH=../../model_outputs/NER-exp2_zeroshot_gpt-5_2.xml
+python src/OpenAI_zeroshot_inference.py $CELLLINK_PATH/test.xml $ZEROSHOT_OUTPUT_PATH ../../model_outputs/NER-exp2_zeroshot_gpt-5_2_cache.json gpt-5.2
 
 MERGED="cell_phenotype cell_hetero cell_desc merged"
 for ANNOTATION_TYPE in cell_phenotype cell_hetero cell_desc None "$MERGED"

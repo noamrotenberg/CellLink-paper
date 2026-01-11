@@ -8,6 +8,8 @@ SCRIPT_SRC_PATH="src"
 FINAL_OUTPUT_PATH=../../model_outputs
 DATA_SRC_PATH="../../NLM_CellLink_data"
 
+python ..\general_scripts\split_BioCXML_files_by_entity_type.py $DATA_SRC_PATH $DATA_SRC_PATH/splits_by_entity_type
+
 for ENTITY_TYPE in cell_phenotype cell_hetero cell_desc
 do
 

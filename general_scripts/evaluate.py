@@ -366,10 +366,12 @@ def filter_passages(annotations, passages, reference_passages):
 
 
 
-def main(reference_path, prediction_path, evaluation_type, evaluation_method, input_annotation_type, 
+def main(reference_path, prediction_path, evaluation_type, evaluation_method, annotation_type, 
          logging_level, verify_documents, skip_extra_pred_passages):
     
     start = datetime.datetime.now()
+    input_annotation_type = annotation_type
+    del annotation_type
     annotation_types = input_annotation_type.split() if not input_annotation_type.lower() == "none" else None
     logging.basicConfig(level=logging_level.upper(), format=log_format)
     
@@ -381,7 +383,7 @@ def main(reference_path, prediction_path, evaluation_type, evaluation_method, in
     reference_annotations, reference_passages = get_annotations_from_path(reference_path, eval_config)
     predicted_annotations, predicted_passages = get_annotations_from_path(prediction_path, eval_config)
     log.info(f"Extracted {len(reference_annotations)} reference and {len(predicted_annotations)} predicted annotations.")
-    log.info("Annotation types extracted:", annotation_types)
+    log.info(f"Annotation types extracted: {annotation_types}")
     
     if skip_extra_pred_passages:
         predicted_annotations, predicted_passages = filter_passages(predicted_annotations, predicted_passages, reference_passages)

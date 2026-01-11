@@ -29,7 +29,7 @@ class TextAnnotationResult(BaseModel):
     annotations: List[TextAnnotation]
 
 
-def query_LLM(model, passage_text):
+def query_LLM(model_name, passage_text):
     system_instructions = """
     Extract all cell populations from the text. Return them as a list of annotations.
     There are 3 types of cell populations to extract: specific cell_phenotype (cell types
@@ -48,7 +48,7 @@ def query_LLM(model, passage_text):
     
     
     response = client.chat.completions.parse(
-                    model=model, messages=messages, temperature=0, max_tokens=1000,
+                    model=model_name, messages=messages, temperature=0, max_completion_tokens=1000,
                     # response_format= {"type": "json_object"},
                     response_format=TextAnnotationResult
     )
@@ -58,21 +58,13 @@ def query_LLM(model, passage_text):
 
 if __name__ == '__main__':
     if len(sys.argv) not in [4, 5]:
-        raise Exception("Usage: python BioCXML_to_LLMjson.py <test_xml_path> <output_xml_path> <cache_path> <Azure deployment- default gpt-4.1>")
+        raise Exception("Usage: python BioCXML_to_LLMjson.py <test_xml_path> <output_xml_path> <cache_path> <model_name>")
     
     test_xml_path = sys.argv[1]
     output_xml_path = sys.argv[2]
     cache_path = sys.argv[3]
+    model_name = sys.argv[4]
     
-    
-    
-    # test_xml_path = r"\\hpcdrive.nih.gov\data\NLM_CellLink_data\test.xml" # DELETE
-    # output_xml_path = r"\\hpcdrive.nih.gov\data\model_outputs/NER-exp2_zeroshot_gpt4_1.xml" # DELETE
-    
-    if len(sys.argv) == 4:
-        model = sys.argv[4]
-    else:
-        model = "gpt-4.1"
 
     # load test document
     
@@ -87,8 +79,9 @@ if __name__ == '__main__':
     client = openai.AzureOpenAI(
       azure_endpoint = os.environ['endpoint'],
       api_key = os.environ['api_key'],
-      api_version = "2025-03-01-preview"  
+      api_version = "2024-08-01-preview"  
     )
+    print("Created AzureOpenAI client.")
     
     if os.path.isfile(cache_path):
         with open(cache_path) as readfp:
@@ -101,7 +94,7 @@ if __name__ == '__main__':
     for i, doc in enumerate(bioc_collection.documents):
         for p in doc.passages:
             if p.text not in cache:
-                predicted_annotations = query_LLM(model, p.text)
+                predicted_annotations = query_LLM(model_name, p.text)
                 # predicted_annotations = [TextAnnotation(text='chondrocytes', entity_type='cell_phenotype'), TextAnnotation(text='chondroprogenitors', entity_type='cell_phenotype'), TextAnnotation(text='MSCs', entity_type='cell_phenotype'), TextAnnotation(text='proliferating MSCs', entity_type='cell_phenotype')]
                 ann_texts = [ann.text for ann in predicted_annotations]
                 entity_types = [ann.entity_type for ann in predicted_annotations]
