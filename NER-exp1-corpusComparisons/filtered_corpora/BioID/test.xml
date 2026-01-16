@@ -1,7 +1,7 @@
 <?xml version='1.0' encoding='utf-8' standalone='yes'?>
 <collection>
   <source></source>
-  <date>2025-12-25</date>
+  <date>2026-01-15</date>
   <key></key>
   <document>
     <id>1170696 Figure_2-A</id>
@@ -5203,7 +5203,7 @@
         <infon key="type">cell_type</infon>
         <infon key="sourcedata_figure_annot_id">4</infon>
         <infon key="sourcedata_article_annot_id">4</infon>
-        <infon key="identifier">CL:0002609</infon>
+        <infon key="identifier">CL:0010012</infon>
         <location offset="97" length="24"/>
         <text>primary cortical neurons</text>
       </annotation>
@@ -5211,7 +5211,7 @@
         <infon key="type">cell_type</infon>
         <infon key="sourcedata_figure_annot_id">9</infon>
         <infon key="sourcedata_article_annot_id">10</infon>
-        <infon key="identifier">CL:0002609</infon>
+        <infon key="identifier">CL:0010012</infon>
         <location offset="190" length="24"/>
         <text>primary cortical neurons</text>
       </annotation>
@@ -5543,7 +5543,7 @@
         <infon key="type">cell_type</infon>
         <infon key="sourcedata_figure_annot_id">9</infon>
         <infon key="sourcedata_article_annot_id">336</infon>
-        <infon key="identifier">CL:0002609</infon>
+        <infon key="identifier">CL:0010012</infon>
         <location offset="158" length="24"/>
         <text>primary cortical neurons</text>
       </annotation>
@@ -7391,7 +7391,7 @@
         <infon key="type">cell_type</infon>
         <infon key="sourcedata_figure_annot_id">1</infon>
         <infon key="sourcedata_article_annot_id">45</infon>
-        <infon key="identifier">CL:0002609</infon>
+        <infon key="identifier">CL:0010012</infon>
         <location offset="29" length="16"/>
         <text>cortical neurons</text>
       </annotation>
@@ -35263,7 +35263,7 @@
         <infon key="type">cell_type</infon>
         <infon key="sourcedata_figure_annot_id">1</infon>
         <infon key="sourcedata_article_annot_id">85</infon>
-        <infon key="identifier">CL:0002609</infon>
+        <infon key="identifier">CL:0010012</infon>
         <location offset="75" length="16"/>
         <text>cortical neurons</text>
       </annotation>
@@ -35283,7 +35283,7 @@
         <infon key="type">cell_type</infon>
         <infon key="sourcedata_figure_annot_id">3</infon>
         <infon key="sourcedata_article_annot_id">97</infon>
-        <infon key="identifier">CL:0002609</infon>
+        <infon key="identifier">CL:0010012</infon>
         <location offset="107" length="16"/>
         <text>cortical neurons</text>
       </annotation>
@@ -35303,7 +35303,7 @@
         <infon key="type">cell_type</infon>
         <infon key="sourcedata_figure_annot_id">3</infon>
         <infon key="sourcedata_article_annot_id">111</infon>
-        <infon key="identifier">CL:0002609</infon>
+        <infon key="identifier">CL:0010012</infon>
         <location offset="133" length="16"/>
         <text>cortical neurons</text>
       </annotation>
@@ -35395,7 +35395,7 @@
         <infon key="type">cell_type</infon>
         <infon key="sourcedata_figure_annot_id">6</infon>
         <infon key="sourcedata_article_annot_id">207</infon>
-        <infon key="identifier">CL:0002609</infon>
+        <infon key="identifier">CL:0010012</infon>
         <location offset="84" length="16"/>
         <text>cortical neurons</text>
       </annotation>
@@ -35415,7 +35415,7 @@
         <infon key="type">cell_type</infon>
         <infon key="sourcedata_figure_annot_id">5</infon>
         <infon key="sourcedata_article_annot_id">215</infon>
-        <infon key="identifier">CL:0002609</infon>
+        <infon key="identifier">CL:0010012</infon>
         <location offset="148" length="16"/>
         <text>cortical neurons</text>
       </annotation>
@@ -35435,7 +35435,7 @@
         <infon key="type">cell_type</infon>
         <infon key="sourcedata_figure_annot_id">3</infon>
         <infon key="sourcedata_article_annot_id">219</infon>
-        <infon key="identifier">CL:0002609</infon>
+        <infon key="identifier">CL:0010012</infon>
         <location offset="135" length="16"/>
         <text>cortical neurons</text>
       </annotation>
@@ -35455,7 +35455,7 @@
         <infon key="type">cell_type</infon>
         <infon key="sourcedata_figure_annot_id">8</infon>
         <infon key="sourcedata_article_annot_id">239</infon>
-        <infon key="identifier">CL:0002609</infon>
+        <infon key="identifier">CL:0010012</infon>
         <location offset="74" length="16"/>
         <text>cortical neurons</text>
       </annotation>
@@ -37099,7 +37099,7 @@
         <infon key="type">cell_type</infon>
         <infon key="sourcedata_figure_annot_id">1</infon>
         <infon key="sourcedata_article_annot_id">79</infon>
-        <infon key="identifier">CL:0008023</infon>
+        <infon key="identifier">CL:0002548</infon>
         <location offset="158" length="19"/>
         <text>cardiac fibroblasts</text>
       </annotation>
@@ -37199,7 +37199,7 @@
         <infon key="type">cell_type</infon>
         <infon key="sourcedata_figure_annot_id">2</infon>
         <infon key="sourcedata_article_annot_id">148</infon>
-        <infon key="identifier">CL:0008023</infon>
+        <infon key="identifier">CL:0002548</infon>
         <location offset="78" length="6"/>
         <text>NRCFbs</text>
       </annotation>
@@ -37219,7 +37219,7 @@
         <infon key="type">cell_type</infon>
         <infon key="sourcedata_figure_annot_id">1</infon>
         <infon key="sourcedata_article_annot_id">154</infon>
-        <infon key="identifier">CL:0008023</infon>
+        <infon key="identifier">CL:0002548</infon>
         <location offset="55" length="6"/>
         <text>NRCFbs</text>
       </annotation>
@@ -37239,7 +37239,7 @@
         <infon key="type">cell_type</infon>
         <infon key="sourcedata_figure_annot_id">4</infon>
         <infon key="sourcedata_article_annot_id">163</infon>
-        <infon key="identifier">CL:0008023</infon>
+        <infon key="identifier">CL:0002548</infon>
         <location offset="56" length="6"/>
         <text>NRCFbs</text>
       </annotation>
@@ -37259,7 +37259,7 @@
         <infon key="type">cell_type</infon>
         <infon key="sourcedata_figure_annot_id">2</infon>
         <infon key="sourcedata_article_annot_id">173</infon>
-        <infon key="identifier">CL:0008023</infon>
+        <infon key="identifier">CL:0002548</infon>
         <location offset="4" length="6"/>
         <text>NRCFbs</text>
       </annotation>
@@ -37279,7 +37279,7 @@
         <infon key="type">cell_type</infon>
         <infon key="sourcedata_figure_annot_id">5</infon>
         <infon key="sourcedata_article_annot_id">184</infon>
-        <infon key="identifier">CL:0008023</infon>
+        <infon key="identifier">CL:0002548</infon>
         <location offset="100" length="6"/>
         <text>NRCFbs</text>
       </annotation>
@@ -37299,7 +37299,7 @@
         <infon key="type">cell_type</infon>
         <infon key="sourcedata_figure_annot_id">1</infon>
         <infon key="sourcedata_article_annot_id">189</infon>
-        <infon key="identifier">CL:0008023</infon>
+        <infon key="identifier">CL:0002548</infon>
         <location offset="29" length="6"/>
         <text>NRCFbs</text>
       </annotation>
@@ -37307,7 +37307,7 @@
         <infon key="type">cell_type</infon>
         <infon key="sourcedata_figure_annot_id">3</infon>
         <infon key="sourcedata_article_annot_id">193</infon>
-        <infon key="identifier">CL:0008023</infon>
+        <infon key="identifier">CL:0002548</infon>
         <location offset="96" length="6"/>
         <text>NRCFbs</text>
       </annotation>
@@ -37327,7 +37327,7 @@
         <infon key="type">cell_type</infon>
         <infon key="sourcedata_figure_annot_id">4</infon>
         <infon key="sourcedata_article_annot_id">200</infon>
-        <infon key="identifier">CL:0008023</infon>
+        <infon key="identifier">CL:0002548</infon>
         <location offset="85" length="6"/>
         <text>NRCFbs</text>
       </annotation>
@@ -37335,7 +37335,7 @@
         <infon key="type">cell_type</infon>
         <infon key="sourcedata_figure_annot_id">6</infon>
         <infon key="sourcedata_article_annot_id">203</infon>
-        <infon key="identifier">CL:0008023</infon>
+        <infon key="identifier">CL:0002548</infon>
         <location offset="135" length="6"/>
         <text>NRCFbs</text>
       </annotation>
@@ -37355,7 +37355,7 @@
         <infon key="type">cell_type</infon>
         <infon key="sourcedata_figure_annot_id">1</infon>
         <infon key="sourcedata_article_annot_id">211</infon>
-        <infon key="identifier">CL:0008023</infon>
+        <infon key="identifier">CL:0002548</infon>
         <location offset="29" length="6"/>
         <text>NRCFbs</text>
       </annotation>
@@ -37363,7 +37363,7 @@
         <infon key="type">cell_type</infon>
         <infon key="sourcedata_figure_annot_id">2</infon>
         <infon key="sourcedata_article_annot_id">213</infon>
-        <infon key="identifier">CL:0008023</infon>
+        <infon key="identifier">CL:0002548</infon>
         <location offset="131" length="6"/>
         <text>NRCFbs</text>
       </annotation>
@@ -37383,7 +37383,7 @@
         <infon key="type">cell_type</infon>
         <infon key="sourcedata_figure_annot_id">3</infon>
         <infon key="sourcedata_article_annot_id">226</infon>
-        <infon key="identifier">CL:0008023</infon>
+        <infon key="identifier">CL:0002548</infon>
         <location offset="112" length="6"/>
         <text>NRCFbs</text>
       </annotation>
@@ -37391,7 +37391,7 @@
         <infon key="type">cell_type</infon>
         <infon key="sourcedata_figure_annot_id">4</infon>
         <infon key="sourcedata_article_annot_id">229</infon>
-        <infon key="identifier">CL:0008023</infon>
+        <infon key="identifier">CL:0002548</infon>
         <location offset="479" length="18"/>
         <text>cardiac fibroblast</text>
       </annotation>

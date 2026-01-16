@@ -44,9 +44,8 @@ def update_annotation(mention_text, entity_type, identifier, updates):
 			continue
 		if identifier != identifier2a and not identifier2a is None:
 			continue
-		entity_type_update = entity_type2b if not entity_type2b is None else entity_type
-		identifier_update = identifier2b if not identifier2b is None else identifier
-		return entity_type_update, identifier_update
+		entity_type = entity_type2b if not entity_type2b is None else entity_type
+		identifier = identifier2b if not identifier2b is None else identifier
 	return entity_type, identifier
 	
 def filter_annotation(mention_text, entity_type, identifier, filters):

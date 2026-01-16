@@ -1,7 +1,7 @@
 <?xml version='1.0' encoding='utf-8' standalone='yes'?>
 <collection>
   <source></source>
-  <date>2025-12-25</date>
+  <date>2026-01-15</date>
   <key></key>
   <document>
     <id>11319941</id>
@@ -1244,7 +1244,7 @@
       </annotation>
       <annotation id="10">
         <infon key="type">cell_type</infon>
-        <infon key="identifier">CL:0002371</infon>
+        <infon key="identifier">CL:0000000</infon>
         <infon key="name">somatic cell</infon>
         <location offset="8546" length="22"/>
         <text>somatic and germ cells</text>
@@ -15933,7 +15933,7 @@
       </annotation>
       <annotation id="2">
         <infon key="type">cell_type</infon>
-        <infon key="identifier">CL:0000548</infon>
+        <infon key="identifier">CL:0000000</infon>
         <infon key="name">animal cell</infon>
         <location offset="3242" length="16"/>
         <text>animal cap cells</text>
@@ -17940,7 +17940,7 @@
       </annotation>
       <annotation id="14">
         <infon key="type">cell_type</infon>
-        <infon key="identifier">CL:0010003</infon>
+        <infon key="identifier">CL:0000322</infon>
         <infon key="name">epithelial cell of alveolus of lung</infon>
         <location offset="17557" length="25"/>
         <text>alveolar epithelial cells</text>
@@ -17991,14 +17991,14 @@
       </annotation>
       <annotation id="19">
         <infon key="type">cell_type</infon>
-        <infon key="identifier">CL:0010003</infon>
+        <infon key="identifier">CL:0000322</infon>
         <infon key="name">epithelial cell of alveolus of lung</infon>
         <location offset="20049" length="25"/>
         <text>alveolar epithelial cells</text>
       </annotation>
       <annotation id="20">
         <infon key="type">cell_type</infon>
-        <infon key="identifier">CL:0010003</infon>
+        <infon key="identifier">CL:0000322</infon>
         <infon key="name">epithelial cell of alveolus of lung</infon>
         <location offset="20246" length="25"/>
         <text>alveolar epithelial cells</text>
@@ -18063,7 +18063,7 @@
       </annotation>
       <annotation id="27">
         <infon key="type">cell_type</infon>
-        <infon key="identifier">CL:0010003</infon>
+        <infon key="identifier">CL:0000322</infon>
         <infon key="name">epithelial cell of alveolus of lung</infon>
         <location offset="23265" length="24"/>
         <text>alveolar epithelial cell</text>
@@ -18081,7 +18081,7 @@
       </annotation>
       <annotation id="29">
         <infon key="type">cell_type</infon>
-        <infon key="identifier">CL:0010003</infon>
+        <infon key="identifier">CL:0000322</infon>
         <infon key="name">epithelial cell of alveolus of lung</infon>
         <location offset="24634" length="25"/>
         <text>alveolar epithelial cells</text>

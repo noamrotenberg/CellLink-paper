@@ -1,7 +1,7 @@
 <?xml version='1.0' encoding='utf-8' standalone='yes'?>
 <collection>
   <source></source>
-  <date>2025-12-25</date>
+  <date>2026-01-15</date>
   <key></key>
   <document>
     <id>11532192</id>
@@ -7234,7 +7234,7 @@
       </annotation>
       <annotation id="40">
         <infon key="type">cell_type</infon>
-        <infon key="identifier">CL:0010003</infon>
+        <infon key="identifier">CL:0000322</infon>
         <infon key="name">epithelial cell of alveolus of lung</infon>
         <location offset="24162" length="4"/>
         <text>AECs</text>
@@ -7410,7 +7410,7 @@
       </annotation>
       <annotation id="56">
         <infon key="type">cell_type</infon>
-        <infon key="identifier">CL:0010003</infon>
+        <infon key="identifier">CL:0000322</infon>
         <infon key="name">epithelial cell of alveolus of lung</infon>
         <location offset="35897" length="4"/>
         <text>AECs</text>
@@ -27604,7 +27604,7 @@
       <text>Changes in Retinal Transcription Factor and Müller Glial Gene Expression in rd7</text>
       <annotation id="121">
         <infon key="type">cell_type</infon>
-        <infon key="identifier">CL:0011107</infon>
+        <infon key="identifier">CL:0000636</infon>
         <infon key="name">Muller cell</infon>
         <location offset="19148" length="12"/>
         <text>Müller Glial</text>
@@ -27693,14 +27693,14 @@
       </annotation>
       <annotation id="132">
         <infon key="type">cell_type</infon>
-        <infon key="identifier">CL:0011107</infon>
+        <infon key="identifier">CL:0000636</infon>
         <infon key="name">Muller cell</infon>
         <location offset="21214" length="11"/>
         <text>Müller glia</text>
       </annotation>
       <annotation id="133">
         <infon key="type">cell_type</infon>
-        <infon key="identifier">CL:0011107</infon>
+        <infon key="identifier">CL:0000636</infon>
         <infon key="name">Muller cell</infon>
         <location offset="21044" length="11"/>
         <text>Müller glia</text>
@@ -28175,14 +28175,14 @@
       </annotation>
       <annotation id="194">
         <infon key="type">cell_type</infon>
-        <infon key="identifier">CL:0011107</infon>
+        <infon key="identifier">CL:0000636</infon>
         <infon key="name">Muller cell</infon>
         <location offset="29681" length="11"/>
         <text>Müller glia</text>
       </annotation>
       <annotation id="195">
         <infon key="type">cell_type</infon>
-        <infon key="identifier">CL:0011107</infon>
+        <infon key="identifier">CL:0000636</infon>
         <infon key="name">Muller cell</infon>
         <location offset="29763" length="12"/>
         <text>Müller glial</text>
@@ -29477,14 +29477,14 @@
       </annotation>
       <annotation id="292">
         <infon key="type">cell_type</infon>
-        <infon key="identifier">CL:0011107</infon>
+        <infon key="identifier">CL:0000636</infon>
         <infon key="name">Muller cell</infon>
         <location offset="63217" length="2"/>
         <text>MG</text>
       </annotation>
       <annotation id="293">
         <infon key="type">cell_type</infon>
-        <infon key="identifier">CL:0011107</infon>
+        <infon key="identifier">CL:0000636</infon>
         <infon key="name">Muller cell</infon>
         <location offset="63221" length="11"/>
         <text>Müller glia</text>
@@ -37246,7 +37246,7 @@
       </annotation>
       <annotation id="31">
         <infon key="type">cell_type</infon>
-        <infon key="identifier">CL:0002371</infon>
+        <infon key="identifier">CL:0000000</infon>
         <infon key="name">somatic cell</infon>
         <location offset="6608" length="13"/>
         <text>somatic cells</text>
@@ -38292,7 +38292,7 @@
       </annotation>
       <annotation id="34">
         <infon key="type">cell_type</infon>
-        <infon key="identifier">CL:0011107</infon>
+        <infon key="identifier">CL:0000636</infon>
         <infon key="name">Muller cell</infon>
         <location offset="3440" length="11"/>
         <text>Müller glia</text>
@@ -41619,7 +41619,7 @@
       </annotation>
       <annotation id="4">
         <infon key="type">cell_type</infon>
-        <infon key="identifier">CL:0002371</infon>
+        <infon key="identifier">CL:0000000</infon>
         <infon key="name">somatic cell</infon>
         <location offset="1961" length="13"/>
         <text>somatic cells</text>
@@ -41874,7 +41874,7 @@
       <text>To investigate whether Fgf9 is essential for the up-regulation of Sox9 in vivo, we assessed SOX9 expression in loss-of-function Fgf9+/− and Fgf9−/− XY gonads at 11.5–12.5 dpc (Figure 3A–3F). In wild-type and heterozygous mutant XY gonads at 11.5 dpc, SOX9 was detected in a small number of cells in the gonad (Figure 3A). Over the next 6 h of development, nuclear SOX9 accumulated rapidly in cells toward the cortex and the anterior and posterior poles of the gonad, replicating patterns previously reported for both Sry and Sox9 expression [2,16,34–36]. This unique pattern was also observed in Fgf9−/− XY gonads (Figure 3D and 3E). Somatic cells within Fgf9−/− gonads were positive for SOX9 at 11.5 dpc, the earliest stages examined, demonstrating that initial expression and up-regulation of SOX9 were not disrupted in Fgf9−/− mutant XY gonads prior to 12.0 dpc. Notably, in Fgf9−/− XY gonads, SOX9 was no longer detectable by 12.5 dpc, and Sertoli precursor cells never began to organize into normal testis cord structures (Figure 3F). These data indicate that although Fgf9 is not required for the up-regulation of Sox9 in vivo, it is indispensable to maintain Sox9 expression in Sertoli precursor cells.</text>
       <annotation id="33">
         <infon key="type">cell_type</infon>
-        <infon key="identifier">CL:0002371</infon>
+        <infon key="identifier">CL:0000000</infon>
         <infon key="name">somatic cell</infon>
         <location offset="13652" length="13"/>
         <text>Somatic cells</text>
@@ -41911,7 +41911,7 @@
       <text>We previously reported that XY-specific cell proliferation is defective in Fgf9−/− XY gonads [7]. Because Sox9 acts as a positive regulator of Fgf9 expression, we questioned whether cell proliferation in XY gonads was also compromised by the loss of Sox9. We examined proliferation in Sox9Δ/Δ gonads at 11.5 dpc using a mitotic cell marker, phosphorylated histone H3. Proliferating cells were more abundant and concentrated in a domain near the surface of wild-type XY gonads, and this XY-specific cell proliferation was evident in XY Sox9flox/Δ littermate controls (Figure 3K). However, in Sox9Δ/Δ XY gonads proliferation was reduced and similar to XX gonads (Figure 3L–3O). This result supports the idea that there is a mutual interdependence between Sox9 and Fgf9 generating a positive feed-forward loop, and that both genes are required for the expansion of somatic cells, including Sertoli cell precursors, in XY gonads.</text>
       <annotation id="36">
         <infon key="type">cell_type</infon>
-        <infon key="identifier">CL:0002371</infon>
+        <infon key="identifier">CL:0000000</infon>
         <infon key="name">somatic cell</infon>
         <location offset="16833" length="13"/>
         <text>somatic cells</text>
@@ -42052,7 +42052,7 @@
       </annotation>
       <annotation id="51">
         <infon key="type">cell_type</infon>
-        <infon key="identifier">CL:0002371</infon>
+        <infon key="identifier">CL:0000000</infon>
         <infon key="name">somatic cell</infon>
         <location offset="22672" length="12"/>
         <text>somatic cell</text>
@@ -42385,7 +42385,7 @@
       </annotation>
       <annotation id="74">
         <infon key="type">cell_type</infon>
-        <infon key="identifier">CL:0000398</infon>
+        <infon key="identifier">CL:0000385</infon>
         <infon key="name">polygonal cell</infon>
         <location offset="36271" length="15"/>
         <text>polygonal cells</text>
@@ -42549,7 +42549,7 @@
       <text>RMCE-ASAP: a gene targeting method for ES and somatic cells to accelerate phenotype analyses</text>
       <annotation id="1">
         <infon key="type">cell_type</infon>
-        <infon key="identifier">CL:0002371</infon>
+        <infon key="identifier">CL:0000000</infon>
         <infon key="name">somatic cell</infon>
         <location offset="46" length="13"/>
         <text>somatic cells</text>
@@ -42599,7 +42599,7 @@
       </annotation>
       <annotation id="7">
         <infon key="type">cell_type</infon>
-        <infon key="identifier">CL:0002371</infon>
+        <infon key="identifier">CL:0000000</infon>
         <infon key="name">somatic cell</infon>
         <location offset="637" length="13"/>
         <text>Somatic cells</text>
@@ -42721,7 +42721,7 @@
       </annotation>
       <annotation id="21">
         <infon key="type">cell_type</infon>
-        <infon key="identifier">CL:0002371</infon>
+        <infon key="identifier">CL:0000000</infon>
         <infon key="name">somatic cell</infon>
         <location offset="5080" length="12"/>
         <text>somatic cell</text>
@@ -42732,7 +42732,7 @@
       <text>The RMCE strategy presented here relies on the integrated use of inverted heterologous loxP sites, a positive/negative selection marker that preserves the germline capacity of ES cells, and the power of mouse genetics to expedite phenotypic analyses. We show that our approach enables efficient targeting of marker-free mutations at the p53 locus in ES cells to generate mutant mice, but more importantly, it is Adapted for targeting in Somatic cells to Accelerate Phenotyping (ASAP). Because it relies on very general principles, RMCE-ASAP could be applied to any locus of interest.</text>
       <annotation id="22">
         <infon key="type">cell_type</infon>
-        <infon key="identifier">CL:0002371</infon>
+        <infon key="identifier">CL:0000000</infon>
         <infon key="name">somatic cell</infon>
         <location offset="5987" length="13"/>
         <text>Somatic cells</text>
@@ -42915,7 +42915,7 @@
       </annotation>
       <annotation id="35">
         <infon key="type">cell_type</infon>
-        <infon key="identifier">CL:0002371</infon>
+        <infon key="identifier">CL:0000000</infon>
         <infon key="name">somatic cell</infon>
         <location offset="16154" length="13"/>
         <text>somatic cells</text>
@@ -42929,7 +42929,7 @@
       </annotation>
       <annotation id="37">
         <infon key="type">cell_type</infon>
-        <infon key="identifier">CL:0002371</infon>
+        <infon key="identifier">CL:0000000</infon>
         <infon key="name">somatic cell</infon>
         <location offset="16039" length="13"/>
         <text>somatic cells</text>
@@ -42993,14 +42993,14 @@
       </annotation>
       <annotation id="45">
         <infon key="type">cell_type</infon>
-        <infon key="identifier">CL:0002371</infon>
+        <infon key="identifier">CL:0000000</infon>
         <infon key="name">somatic cell</infon>
         <location offset="17858" length="13"/>
         <text>somatic cells</text>
       </annotation>
       <annotation id="46">
         <infon key="type">cell_type</infon>
-        <infon key="identifier">CL:0002371</infon>
+        <infon key="identifier">CL:0000000</infon>
         <infon key="name">somatic cell</infon>
         <location offset="18161" length="13"/>
         <text>somatic cells</text>
@@ -43043,7 +43043,7 @@
       </annotation>
       <annotation id="51">
         <infon key="type">cell_type</infon>
-        <infon key="identifier">CL:0002371</infon>
+        <infon key="identifier">CL:0000000</infon>
         <infon key="name">somatic cell</infon>
         <location offset="20983" length="13"/>
         <text>somatic cells</text>
@@ -43088,14 +43088,14 @@
       </annotation>
       <annotation id="54">
         <infon key="type">cell_type</infon>
-        <infon key="identifier">CL:0002371</infon>
+        <infon key="identifier">CL:0000000</infon>
         <infon key="name">somatic cell</infon>
         <location offset="22888" length="13"/>
         <text>somatic cells</text>
       </annotation>
       <annotation id="55">
         <infon key="type">cell_type</infon>
-        <infon key="identifier">CL:0002371</infon>
+        <infon key="identifier">CL:0000000</infon>
         <infon key="name">somatic cell</infon>
         <location offset="23080" length="13"/>
         <text>somatic cells</text>
@@ -47269,7 +47269,7 @@
       </annotation>
       <annotation id="20">
         <infon key="type">cell_type</infon>
-        <infon key="identifier">CL:0002371</infon>
+        <infon key="identifier">CL:0000000</infon>
         <infon key="name">somatic cell</infon>
         <location offset="7486" length="13"/>
         <text>somatic cells</text>
@@ -47522,7 +47522,7 @@
       </annotation>
       <annotation id="51">
         <infon key="type">cell_type</infon>
-        <infon key="identifier">CL:0002371</infon>
+        <infon key="identifier">CL:0000000</infon>
         <infon key="name">somatic cell</infon>
         <location offset="19883" length="13"/>
         <text>somatic cells</text>

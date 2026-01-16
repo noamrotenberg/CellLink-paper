@@ -1,7 +1,7 @@
 <?xml version='1.0' encoding='utf-8' standalone='yes'?>
 <collection>
   <source></source>
-  <date>2025-12-25</date>
+  <date>2026-01-15</date>
   <key></key>
   <document>
     <id>17194222</id>
@@ -1818,7 +1818,7 @@
       </annotation>
       <annotation id="10">
         <infon key="type">cell_type</infon>
-        <infon key="identifier">CL:0002371</infon>
+        <infon key="identifier">CL:0000000</infon>
         <infon key="name">somatic cell</infon>
         <location offset="3228" length="13"/>
         <text>somatic cells</text>
@@ -2054,7 +2054,7 @@
       </annotation>
       <annotation id="34">
         <infon key="type">cell_type</infon>
-        <infon key="identifier">CL:0002371</infon>
+        <infon key="identifier">CL:0000000</infon>
         <infon key="name">somatic cell</infon>
         <location offset="11894" length="13"/>
         <text>somatic cells</text>
@@ -2308,7 +2308,7 @@
       </annotation>
       <annotation id="64">
         <infon key="type">cell_type</infon>
-        <infon key="identifier">CL:0002371</infon>
+        <infon key="identifier">CL:0000000</infon>
         <infon key="name">somatic cell</infon>
         <location offset="19096" length="12"/>
         <text>somatic cell</text>
@@ -3229,7 +3229,7 @@
       </annotation>
       <annotation id="159">
         <infon key="type">cell_type</infon>
-        <infon key="identifier">CL:0002371</infon>
+        <infon key="identifier">CL:0000000</infon>
         <infon key="name">somatic cell</infon>
         <location offset="41221" length="13"/>
         <text>somatic cells</text>
@@ -4250,7 +4250,7 @@
       </annotation>
       <annotation id="21">
         <infon key="type">cell_type</infon>
-        <infon key="identifier">CL:0011107</infon>
+        <infon key="identifier">CL:0000636</infon>
         <infon key="name">Muller cell</infon>
         <location offset="3650" length="16"/>
         <text>Müller glia cell</text>
@@ -4346,14 +4346,14 @@
       </annotation>
       <annotation id="33">
         <infon key="type">cell_type</infon>
-        <infon key="identifier">CL:0011107</infon>
+        <infon key="identifier">CL:0000636</infon>
         <infon key="name">Muller cell</infon>
         <location offset="4503" length="1"/>
         <text>m</text>
       </annotation>
       <annotation id="34">
         <infon key="type">cell_type</infon>
-        <infon key="identifier">CL:0011107</infon>
+        <infon key="identifier">CL:0000636</infon>
         <infon key="name">Muller cell</infon>
         <location offset="4495" length="34"/>
         <text>Müller (m), and amacrine (a) cells</text>
@@ -5473,7 +5473,7 @@
       </annotation>
       <annotation id="162">
         <infon key="type">cell_type</infon>
-        <infon key="identifier">CL:0011107</infon>
+        <infon key="identifier">CL:0000636</infon>
         <infon key="name">Muller cell</infon>
         <location offset="34412" length="12"/>
         <text>Müller cells</text>
@@ -6756,7 +6756,7 @@
       </annotation>
       <annotation id="16">
         <infon key="type">cell_type</infon>
-        <infon key="identifier">CL:0002371</infon>
+        <infon key="identifier">CL:0000000</infon>
         <infon key="name">somatic cell</infon>
         <location offset="5494" length="13"/>
         <text>somatic cells</text>
