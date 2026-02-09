@@ -10,8 +10,8 @@ export api_key= ### insert Azure API key
 ZEROSHOT_OUTPUT_PATH=../../model_outputs/NER-exp2_zeroshot_gpt-5_2.xml
 python src/OpenAI_zeroshot_inference.py $CELLLINK_PATH/test.xml $ZEROSHOT_OUTPUT_PATH ../../model_outputs/NER-exp2_zeroshot_gpt-5_2_cache.json gpt-5.2
 
-MERGED="cell_phenotype cell_hetero cell_desc merged"
-for ANNOTATION_TYPE in cell_phenotype cell_hetero cell_desc None "$MERGED"
+MERGED="cell_phenotype cell_hetero cell_vague merged"
+for ANNOTATION_TYPE in cell_phenotype cell_hetero cell_vague None "$MERGED"
 do
     for EVALUATION_METHOD in strict approx
     do

@@ -42,7 +42,7 @@ if entity_type == "cell_hetero":
     entity_name = "heterogeneous cell populations"
 elif entity_type == "cell_phenotype":
     entity_name = "cell phenotypes (specific cell types and their states)"
-elif entity_type == "cell_desc":
+elif entity_type == "cell_vague":
     entity_name = "vague cell populations"
 
 # test_path = os.path.join(LLM_json_data_dirpath, f"{dataset}_{entity_type}_only_LLM.json")

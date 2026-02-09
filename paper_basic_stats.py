@@ -139,9 +139,9 @@ def get_passages_and_annotations(collection):
         all_annotations += p.annotations
     cell_pheno_annotations = [ann for ann in all_annotations if ann.infons['type'] == "cell_phenotype"] # in ['cell_type', 'cell_phenotype', 'cell_pheno']]
     cell_hetero_annotations = [ann for ann in all_annotations if ann.infons['type'] == 'cell_hetero']
-    cell_desc_annotations = [ann for ann in all_annotations if ann.infons['type'] in ['cell_desc', 'cell_vague']]
-    assert(len(all_annotations) == len(cell_pheno_annotations) + len(cell_hetero_annotations) + len(cell_desc_annotations))
-    annotation_groups = [all_annotations, cell_pheno_annotations, cell_hetero_annotations, cell_desc_annotations]
+    cell_vague_annotations = [ann for ann in all_annotations if ann.infons['type'] in ['cell_vague', 'cell_vague']]
+    assert(len(all_annotations) == len(cell_pheno_annotations) + len(cell_hetero_annotations) + len(cell_vague_annotations))
+    annotation_groups = [all_annotations, cell_pheno_annotations, cell_hetero_annotations, cell_vague_annotations]
     return annotatable_passages, annotation_groups
 
 def ID_is_None(identifier):
@@ -250,7 +250,7 @@ def get_all_tokens(list_of_strings):
 def general_stats(collection, writefp = None):
 
     annotatable_passages, annotation_groups = get_passages_and_annotations(collection)
-    (all_annotations, cell_pheno_annotations, cell_hetero_annotations, cell_desc_annotations) = annotation_groups
+    (all_annotations, cell_pheno_annotations, cell_hetero_annotations, cell_vague_annotations) = annotation_groups
     
     num_passages = len(annotatable_passages)
 
@@ -273,13 +273,13 @@ def general_stats(collection, writefp = None):
     passage_years_frequency = collections.Counter(passage_years)
     print("passage years frequency:", sorted(passage_years_frequency.most_common()), file=writefp)
     
-    df = pd.DataFrame(index=["Total", "cell_pheno", "cell_hetero", "cell_desc"])
+    df = pd.DataFrame(index=["Total", "cell_pheno", "cell_hetero", "cell_vague"])
     
     df['num_annotations'] = [
         len(all_annotations),
         len(cell_pheno_annotations),
         len(cell_hetero_annotations),
-        len(cell_desc_annotations)
+        len(cell_vague_annotations)
         ]
     
     all_corpus_tokens= get_all_tokens([p.text for p in annotatable_passages])
@@ -374,17 +374,17 @@ def general_stats(collection, writefp = None):
     
     # we did not use the commented statistics below, but they could still be interesting
     # average annotations by passage type:
-    # averages_by_passagetype = {"cell_phenotype":[], "cell_hetero":[], "cell_desc":[]}
+    # averages_by_passagetype = {"cell_phenotype":[], "cell_hetero":[], "cell_vague":[]}
     # num_annotations_by_passage_type = pd.DataFrame(index=["cell_phenotype", "cp_rate", "cp_rate2", "cell_hetero",
-    #                                                       "ch_rate", "ch_rate2", "cell_desc", "cd_rate", "cd_rate2"])
+    #                                                       "ch_rate", "ch_rate2", "cell_vague", "cd_rate", "cd_rate2"])
     # for passage_type, passages_i in passages_by_type.items():
-    #     for pt in ["cell_phenotype", "cell_hetero", "cell_desc"]:
+    #     for pt in ["cell_phenotype", "cell_hetero", "cell_vague"]:
     #         averages_by_passagetype[pt].append([])
-    #     annotation_counts = {"cell_phenotype":0, "cell_hetero":0, "cell_desc":0}
-    #     annotation_averages = {"cell_phenotype":0, "cell_hetero":0, "cell_desc":0}
+    #     annotation_counts = {"cell_phenotype":0, "cell_hetero":0, "cell_vague":0}
+    #     annotation_averages = {"cell_phenotype":0, "cell_hetero":0, "cell_vague":0}
     #     num_char = 0
     #     for p in passages_i:
-    #         annotation_counts_i = {"cell_phenotype":0, "cell_hetero":0, "cell_desc":0}
+    #         annotation_counts_i = {"cell_phenotype":0, "cell_hetero":0, "cell_vague":0}
     #         num_char += len(p.text)
     #         for ann in p.annotations:
     #             annotation_counts[ann.infons['type']] += 1
@@ -396,14 +396,14 @@ def general_stats(collection, writefp = None):
     #     num_annotations_by_passage_type[passage_type] = [annotation_counts["cell_phenotype"],
     #                 annotation_counts["cell_phenotype"]*100/num_char, annotation_averages["cell_phenotype"]*100/len(passages_i),
     #                 annotation_counts["cell_hetero"], annotation_counts["cell_hetero"]*100/num_char, annotation_averages["cell_hetero"]*100/len(passages_i),
-    #                 annotation_counts["cell_desc"], annotation_counts["cell_desc"]*100/num_char, annotation_averages["cell_desc"]*100/len(passages_i)]
+    #                 annotation_counts["cell_vague"], annotation_counts["cell_vague"]*100/num_char, annotation_averages["cell_vague"]*100/len(passages_i)]
         
     # print(num_annotations_by_passage_type)
     
     num_annotations_by_passage_type = pd.DataFrame(index=["cell_phenotype", "cp-%", "cell_hetero",
-                                                          "ch-%", "cell_desc", "cd-%"])
+                                                          "ch-%", "cell_vague", "cd-%"])
     for passage_type, passages_i in passages_by_type.items():
-        annotation_counts = {"cell_phenotype":0, "cell_hetero":0, "cell_desc":0, "total":0}
+        annotation_counts = {"cell_phenotype":0, "cell_hetero":0, "cell_vague":0, "total":0}
         for p in passages_i:
             for ann in p.annotations:
                 annotation_counts[ann.infons['type']] += 1
@@ -412,7 +412,7 @@ def general_stats(collection, writefp = None):
         num_annotations_by_passage_type[passage_type] = [annotation_counts["cell_phenotype"],
                     annotation_counts["cell_phenotype"]*100/annotation_counts["total"],
                     annotation_counts["cell_hetero"], annotation_counts["cell_hetero"]*100/annotation_counts["total"], 
-                    annotation_counts["cell_desc"], annotation_counts["cell_desc"]*100/annotation_counts["total"]]
+                    annotation_counts["cell_vague"], annotation_counts["cell_vague"]*100/annotation_counts["total"]]
         
     print('\n' + num_annotations_by_passage_type.T.to_string(), file=writefp)
     
@@ -452,7 +452,7 @@ def total_stats(collection, writefp = None):
     df = general_stats(collection, writefp)
     
     annotatable_passages, annotation_groups = get_passages_and_annotations(collection)
-    (all_annotations, cell_pheno_annotations, cell_hetero_annotations, cell_desc_annotations) = annotation_groups
+    (all_annotations, cell_pheno_annotations, cell_hetero_annotations, cell_vague_annotations) = annotation_groups
     
     # plot cumulative # of new IDs & mentions over time
     dates = set([p.infons['date-folderName'] for p in annotatable_passages])
@@ -490,10 +490,10 @@ def total_stats(collection, writefp = None):
     
 def differential_analysis(collection1, collection2, name1, name2):
     annotatable_passages1, annotation_groups1 = get_passages_and_annotations(collection1)
-    (all_annotations1, cell_pheno_annotations1, cell_hetero_annotations1, cell_desc_annotations1) = annotation_groups1
+    (all_annotations1, cell_pheno_annotations1, cell_hetero_annotations1, cell_vague_annotations1) = annotation_groups1
     
     annotatable_passages2, annotation_groups2 = get_passages_and_annotations(collection2)
-    (all_annotations2, cell_pheno_annotations2, cell_hetero_annotations2, cell_desc_annotations2) = annotation_groups2
+    (all_annotations2, cell_pheno_annotations2, cell_hetero_annotations2, cell_vague_annotations2) = annotation_groups2
     
     df = pd.DataFrame(index=["1 only", "1 & 2", "2 only"])
     
@@ -537,7 +537,7 @@ def tri_differential_analysis(bioc_collections, names):
     unique_PMIDs_by_name = []
     for collection, name in zip(bioc_collections, names):
         annotatable_passages, annotation_groups = get_passages_and_annotations(collection)
-        (all_annotations, cell_pheno_annotations, cell_hetero_annotations, cell_desc_annotations) = annotation_groups
+        (all_annotations, cell_pheno_annotations, cell_hetero_annotations, cell_vague_annotations) = annotation_groups
         
         unique_mentions_per_name.append(set([ann.text for ann in all_annotations]))
         unique_IDs_per_name.append(set(get_all_IDs(all_annotations, include_None=True)))
@@ -707,7 +707,7 @@ def train_val_test_stats(tdt_split_path, writefp=None, ds_names = ['train', 'dev
 # df2 = differential_analysis(old_collection, recent_collection, f"sets 11-{set_split_num-1}", f"sets {set_split_num}-{latest_set_num}")
 
 annotatable_passages, annotation_groups = get_passages_and_annotations(round3_collection)
-(all_annotations, cell_pheno_annotations, cell_hetero_annotations, cell_desc_annotations) = annotation_groups
+(all_annotations, cell_pheno_annotations, cell_hetero_annotations, cell_vague_annotations) = annotation_groups
 
 # additional stats that we did not use but might be interesting:
 # passage_IDs = [p.infons['passage_id'] for p in annotatable_passages]

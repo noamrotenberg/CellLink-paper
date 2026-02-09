@@ -43,7 +43,7 @@ if entity_type == "cell_hetero":
 elif entity_type == "cell_phenotype":
     entity_name = "cell phenotypes (specific cell types and their states)"
     max_seq_length = 900
-elif entity_type == "cell_desc":
+elif entity_type == "cell_vague":
     entity_name = "vague cell populations"
     max_seq_length = 700
 

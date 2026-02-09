@@ -23,7 +23,7 @@ class TextAnnotation(pydantic.BaseModel):
     Use `text` for the source text and `entity_type` for the entity type.
     """
     text: str
-    entity_type: Literal["cell_phenotype", "cell_hetero", "cell_desc"]
+    entity_type: Literal["cell_phenotype", "cell_hetero", "cell_vague"]
 
 class TextAnnotationResult(BaseModel):
     annotations: List[TextAnnotation]
@@ -35,7 +35,7 @@ def query_LLM(model_name, passage_text):
     There are 3 types of cell populations to extract: specific cell_phenotype (cell types
     and their states, such as "hepatocytes", "microglia", "activated fibroblast"),
     cell_hetero (heterogeneous cell populations, such as "kidney cells", "secreting cells",
-    "cancer cells"), and cell_desc (vague cell population descriptions, such as 
+    "cancer cells"), and cell_vague (vague cell population descriptions, such as 
     "Ly6a-expressing cells", "microglia-like cells", "CAR T cells", "neural subsets").
     """
     

@@ -147,7 +147,7 @@ def get_mention_texts(input_filename):
             #     print("warning/take a look: passage has no pmid", passage)
             #     continue
             for annotation in passage.annotations:
-                if annotation.infons['type'] != 'cell_desc':
+                if annotation.infons['type'] != 'cell_vague':
                     mentions.add((pmid, s_stem_all(annotation.text)))
     return mentions
 
@@ -165,7 +165,7 @@ def process_collection(input_filename, models_results, output_filename):
                 print("warning/take a look: passage has no pmid", passage)
                 continue
             for annotation in passage.annotations:
-                if annotation.infons['type'] != 'cell_desc':
+                if annotation.infons['type'] != 'cell_vague':
                     for model_name, normalized in models_results.items():
                         topn_results = normalized.get((pmid, s_stem_all(annotation.text)))
                         if topn_results is None:

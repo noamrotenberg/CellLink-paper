@@ -53,13 +53,13 @@ def encapsulates(ann1, ann2):
     ann2_end = ann2.locations[0].end
     return ((ann1_offset <= ann2_offset) and (ann1_end >= ann2_end))
 
-def get_cell_desc_length(ann1, ann2):
-    # given 2 annotations, one of which is cell_desc, get its length
-    cell_desc_annotations = [ann for ann in [ann1, ann2] if ann.infons['type'] == 'cell_desc']
-    if len(cell_desc_annotations) != 1:
-        raise Exception("Only 1 cell_desc annotation was expected.")
+def get_cell_vague_length(ann1, ann2):
+    # given 2 annotations, one of which is cell_vague, get its length
+    cell_vague_annotations = [ann for ann in [ann1, ann2] if ann.infons['type'] == 'cell_vague']
+    if len(cell_vague_annotations) != 1:
+        raise Exception("Only 1 cell_vague annotation was expected.")
     else:
-        return len(cell_desc_annotations[0].text)
+        return len(cell_vague_annotations[0].text)
 
 
 def process_file(input_filename, standardizer, cell_types_dict):
@@ -100,7 +100,7 @@ def process_file(input_filename, standardizer, cell_types_dict):
             for i, annotation in enumerate(passage.annotations):
                 if not "type" in annotation.infons:
                     errors.append(("ERROR", input_filename, passage_id, "Annotation does not contain \"type\" infon",  "Annotation does not contain \"type\" infon"))
-                elif not annotation.infons["type"] in {"cell_phenotype", "cell_hetero", "cell_desc"}:
+                elif not annotation.infons["type"] in {"cell_phenotype", "cell_hetero", "cell_vague"}:
                     errors.append(("ERROR", input_filename, passage_id, "Annotation \"type\" infon value is unknown",  "Annotation \"type\" infon value is unknown: {}".format(annotation.infons["type"])))
                 if not "identifier" in annotation.infons:
                     errors.append(("ERROR", input_filename, passage_id, "Annotation does not contain \"identifier\" infon",  "Annotation does not contain \"identifier\" infon"))
@@ -110,8 +110,8 @@ def process_file(input_filename, standardizer, cell_types_dict):
                         errors.append(("ERROR", input_filename, passage_id, general_error, "Annotation #{} ({}): {}".format(annotation.id, annotation.text, specific_error)))
                 if "type" in annotation.infons and "identifier" in annotation.infons:
                     # Check that desc does not have an identifier
-                    if annotation.infons["type"] == "cell_desc" and annotation.infons["identifier"] != "None":
-                        errors.append(("ERROR", input_filename, passage_id, "Annotation with type \"cell_desc\" lists an identifier", "Annotation #{} ({}) with type \"cell_desc\" lists an identifier: {}".format(annotation.id, annotation.text, annotation.infons["identifier"])))
+                    if annotation.infons["type"] == "cell_vague" and annotation.infons["identifier"] != "None":
+                        errors.append(("ERROR", input_filename, passage_id, "Annotation with type \"cell_vague\" lists an identifier", "Annotation #{} ({}) with type \"cell_vague\" lists an identifier: {}".format(annotation.id, annotation.text, annotation.infons["identifier"])))
                 if len(annotation.locations) != 1:
                     errors.append(("ERROR", input_filename, passage_id, "Annotation does not have exactly 1 location", "Annotation #{} ({}) should have exactly 1 location: {}".format(annotation.id, annotation.text, len(annotation.locations))))
                 if len(annotation.locations) == 0:
@@ -131,24 +131,24 @@ def process_file(input_filename, standardizer, cell_types_dict):
                 for ann2 in passage.annotations[i+1:]:
                     if overlaps(annotation, ann2):
                            
-                           # XNOR (exclusive not OR): cell_desc can't overlap with cell_desc; not cell_desc can't overlap with not cell_desc
-                           # ("not cell_desc" means cell_phenotype or cell_hetero)
-                           if not ((annotation.infons['type'] == 'cell_desc') ^ (ann2.infons['type'] == 'cell_desc')):
+                           # XNOR (exclusive not OR): cell_vague can't overlap with cell_vague; not cell_vague can't overlap with not cell_vague
+                           # ("not cell_vague" means cell_phenotype or cell_hetero)
+                           if not ((annotation.infons['type'] == 'cell_vague') ^ (ann2.infons['type'] == 'cell_vague')):
                                errors.append(("ERROR", input_filename, passage_id, "Overlapping annotations", "Annotation #{} ({}) overlaps with Annotation #{} ({})".format(annotation.id, annotation.text, ann2.id, ann2.text)))
                            else:
-                               # ensure that the cell_desc annotation fully encapsulates the other annotation
+                               # ensure that the cell_vague annotation fully encapsulates the other annotation
                                if not (encapsulates(annotation, ann2) or encapsulates(ann2, annotation)):
-                                   errors.append(("ERROR", input_filename, passage_id, "Partially overlapping annotations", "Annotation #{} ({}) overlaps with Annotation #{} ({}); cell_desc must completely encapsulate the other annotation".format(annotation.id, annotation.text, ann2.id, ann2.text)))
+                                   errors.append(("ERROR", input_filename, passage_id, "Partially overlapping annotations", "Annotation #{} ({}) overlaps with Annotation #{} ({}); cell_vague must completely encapsulate the other annotation".format(annotation.id, annotation.text, ann2.id, ann2.text)))
                                else:
-                                   # since 1 annotation encapsulates another, ensure that the cell_desc annotation is longer
-                                   if min(len(annotation.text), len(ann2.text)) >= get_cell_desc_length(annotation, ann2):
-                                       errors.append(("ERROR", input_filename, passage_id, "cell_desc is encapsulated", "Annotation #{} ({}) overlaps with Annotation #{} ({}); cell_desc must encapsulate the other annotation".format(annotation.id, annotation.text, ann2.id, ann2.text)))
+                                   # since 1 annotation encapsulates another, ensure that the cell_vague annotation is longer
+                                   if min(len(annotation.text), len(ann2.text)) >= get_cell_vague_length(annotation, ann2):
+                                       errors.append(("ERROR", input_filename, passage_id, "cell_vague is encapsulated", "Annotation #{} ({}) overlaps with Annotation #{} ({}); cell_vague must encapsulate the other annotation".format(annotation.id, annotation.text, ann2.id, ann2.text)))
                                    
                     
-                    if ((annotation.infons['type'] == 'cell_desc') ^ (ann2.infons['type'] == 'cell_desc')):
-                        # overlapping cell_desc & something else. make sure the span isn't exactly the same
+                    if ((annotation.infons['type'] == 'cell_vague') ^ (ann2.infons['type'] == 'cell_vague')):
+                        # overlapping cell_vague & something else. make sure the span isn't exactly the same
                         if annotation.text == ann2.text:
-                            errors.append(("WARNING", input_filename, passage_id, "identical annotations", "cell_desc annotation overlaps exactly with another annotation: ('{}' and '{}')".format(annotation.text, ann2.text)))    
+                            errors.append(("WARNING", input_filename, passage_id, "identical annotations", "cell_vague annotation overlaps exactly with another annotation: ('{}' and '{}')".format(annotation.text, ann2.text)))    
                 
     print("Found " + str(len(errors)))
     return errors

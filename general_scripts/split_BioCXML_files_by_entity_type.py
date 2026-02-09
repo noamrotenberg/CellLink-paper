@@ -23,7 +23,7 @@ if __name__ == '__main__':
         with open(filepath, 'r', encoding='utf-8') as readfp:
             input_collection = bioc.load(readfp)
         
-        for entity_type in ["cell_phenotype", "cell_hetero", "cell_desc", "pheno_hetero_merged"]:
+        for entity_type in ["cell_phenotype", "cell_hetero", "cell_vague", "pheno_hetero_merged"]:
             output_collection = copy.deepcopy(input_collection)
             for doc in output_collection.documents:
                 for p in doc.passages:

@@ -406,7 +406,7 @@ def num_entities(path):
                     num_phenotype += 1
                 elif ann.infons['type'] == "cell_hetero":
                     num_hetero += 1
-                elif ann.infons['type'] == "cell_desc":
+                elif ann.infons['type'] == "cell_vague":
                     num_desc += 1
                 
                 if ann.infons.get('identifier', "") is not None and \
@@ -518,8 +518,8 @@ if __name__ == "__main__":
             
             evaluations = [('strict', 'span_identifier', None)] # for IAA by passage type or by MeSH cluster, use only this line
             # evaluations = [('strict', 'span_identifier', 'cell_phenotype'), ('strict', 'span_identifier', 'cell_hetero'), ('strict', 'span_identifier', None), ('strict', 'span_identifier', 'pool'),
-            #                 ('strict', 'span', 'cell_phenotype'), ('strict', 'span', 'cell_hetero'), ('strict', 'span', 'cell_desc'), ('strict', 'span', None), ('strict', 'span', 'pool'),
-            #         ('approx', 'span', 'cell_phenotype'), ('approx', 'span', 'cell_hetero'), ('approx', 'span', 'cell_desc'), ('approx', 'span', None), ('approx', 'span', 'pool'),
+            #                 ('strict', 'span', 'cell_phenotype'), ('strict', 'span', 'cell_hetero'), ('strict', 'span', 'cell_vague'), ('strict', 'span', None), ('strict', 'span', 'pool'),
+            #         ('approx', 'span', 'cell_phenotype'), ('approx', 'span', 'cell_hetero'), ('approx', 'span', 'cell_vague'), ('approx', 'span', None), ('approx', 'span', 'pool'),
             #         ('strict', 'identifier', 'cell_phenotype'), ('strict', 'identifier', 'cell_hetero'), ('strict', 'identifier', None), ('strict', 'identifier', 'pool')]
             results_df = pd.DataFrame(index=[e[0] + ',' + e[1] + ',' + str(e[2]) for e in evaluations])
             annotator_combinations = [annotator1 + " & " + annotator2 for i, annotator1 in enumerate(unique_annotators[:-1]) for annotator2 in unique_annotators[i+1:]]
@@ -565,7 +565,7 @@ if __name__ == "__main__":
         average_results_df = copy.deepcopy(results_df)
         average_results_dict = {}
         for col_name in results:
-            if ("cell_phenotype" in col_name) or ("cell_hetero" in col_name) or ("cell_desc" in col_name):
+            if ("cell_phenotype" in col_name) or ("cell_hetero" in col_name) or ("cell_vague" in col_name):
                 weights = results["num " + col_name.split('_')[-1]]
                 average_results_dict[col_name] = "{:.3f}".format(np.average(results[col_name], weights=weights)) + 'w'
             elif ("pool" in col_name) or ("None" in col_name):

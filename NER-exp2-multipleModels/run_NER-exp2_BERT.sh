@@ -10,7 +10,7 @@ DATA_SRC_PATH="../../NLM_CellLink_data"
 
 python ..\general_scripts\split_BioCXML_files_by_entity_type.py $DATA_SRC_PATH $DATA_SRC_PATH/splits_by_entity_type
 
-for ENTITY_TYPE in cell_phenotype cell_hetero cell_desc
+for ENTITY_TYPE in cell_phenotype cell_hetero cell_vague
 do
 
     
@@ -77,10 +77,10 @@ do
     python -u "${SCRIPT_SRC_PATH}/convert_hfjson_to_bioc.py" $TEST_XML_PATH $TEST_JSON $OUTPUT_JSON_FILE $FINAL_OUTPUT_PATH/NER_BERT_${ENTITY_TYPE}_output.xml
 done
 
-python ../general_scripts/merge_BioCXML_annotations.py $FINAL_OUTPUT_PATH/NER_BERT_cell_phenotype_output.xml $FINAL_OUTPUT_PATH/NER_BERT_cell_hetero_output.xml $FINAL_OUTPUT_PATH/NER_BERT_cell_desc_output.xml $FINAL_OUTPUT_PATH/NER_BERT_combined_output.xml
+python ../general_scripts/merge_BioCXML_annotations.py $FINAL_OUTPUT_PATH/NER_BERT_cell_phenotype_output.xml $FINAL_OUTPUT_PATH/NER_BERT_cell_hetero_output.xml $FINAL_OUTPUT_PATH/NER_BERT_cell_vague_output.xml $FINAL_OUTPUT_PATH/NER_BERT_combined_output.xml
 
-MERGED="cell_phenotype cell_hetero cell_desc merged"
-for ENTITY_TYPE in cell_phenotype cell_hetero cell_desc None "$MERGED"
+MERGED="cell_phenotype cell_hetero cell_vague merged"
+for ENTITY_TYPE in cell_phenotype cell_hetero cell_vague None "$MERGED"
 do
     for EVALUATION_METHOD in strict approx
     do
