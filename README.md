@@ -1,4 +1,4 @@
-This GitHub repository contains code created to analyze the National Library of Medicine CellLink corpus, as reported in the manuscript cited below. The analysis includes computations of corpus statistics, inter-annotator agreement (IAA), comparisons with other corpora, named entity recognition (NER) of cell populations, and entity linking (EL) of cell populations.
+This GitHub repository contains code created to analyze the National Library of Medicine CellLink corpus, as reported in the [manuscript cited below](https://doi.org/10.64898/2026.02.11.705457). The analysis includes computations of corpus statistics, inter-annotator agreement (IAA), comparisons with other corpora, named entity recognition (NER) of cell populations, and entity linking (EL) of cell populations.
 
 
 ## Repository Structure
@@ -21,7 +21,7 @@ The exact versions of the training and validation sets of the NLM CellLink corpu
 
 ## Citation
 If you use this code or the CellLink corpus, please cite the following paper:
-Rotenberg N, Leaman R, Islamaj R, Kuivaniemi H, Tromp G, Fluharty B, Richardson S, Eastwood C, Diller M, Xu B, Pankajam A, Osumi-Sutherland D, Lu Z, & Scheuermann, R. H. Cell phenotypes in the biomedical literature: a systematic analysis and text mining corpus. To appear.
+Rotenberg N, Leaman R, Islamaj R, Kuivaniemi H, Tromp G, Fluharty B, Richardson S, Eastwood C, Diller M, Xu B, Pankajam A, Osumi-Sutherland D, Lu Z, & Scheuermann, R. H. Cell phenotypes in the biomedical literature: a systematic analysis and text mining corpus. bioRxiv. [doi:10.64898/2026.02.11.705457](https://doi.org/10.64898/2026.02.11.705457).
 
 References for other corpora containing cell types:
 - AnatEM (Anatomical Entity Mention) corpus: Pyysalo S, Ananiadou S. Anatomical entity mention recognition at literature scale. Bioinformatics 30, 868-875 (2014).
