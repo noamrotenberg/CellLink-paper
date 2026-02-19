@@ -1,0 +1,129 @@
+{
+	"JOURNAL_NAME": {
+		"data_type": "singleton",
+		"summary_calculator": ["summary_calculators.mean", []],
+		"rank": "document",
+		"data_transform1": ["data_transforms.rare_threshold", ["<RARE>", 1000, 0.5]],
+		"data_transform2": ["data_transforms.make_copy", []],
+		"scorer": ["selection", "scoring.annotation_indexed_kldiv_dimension_scorer", 0.5, [1000.0]]
+	},
+	"PUBLICATION_YEAR": {
+		"data_type": "singleton",
+		"summary_calculator": ["summary_calculators.mean", []],
+		"rank": "document",
+		"data_transform1": ["data_transforms.make_copy", []],
+		"data_transform2": ["data_transforms.make_copy", []],
+		"data_filter": ["data_filters.passage_names", ["2018"]],
+		"scorer": ["selection", "scoring.annotation_indexed_kldiv_dimension_scorer", 0.5, [1000.0]]
+	},
+	"MESH_TERMS": {
+		"data_type": "count_dict",
+		"summary_calculator": ["summary_calculators.mean", []],
+		"rank": "document",
+		"data_transform1": ["data_transforms.rare_threshold", ["<RARE>", 1000, 0.5]],
+		"data_transform2": ["data_transforms.make_copy", []],
+		"data_filter": ["data_filters.passage_name_required", ["Humans", "Mice"]],
+		"adjusters": [["adjuster_functions.manual_JSON", ["data/adjustments.json"]]],
+		"scorer": ["selection", "scoring.annotation_indexed_kldiv_dimension_scorer", 0.5, [1000.0]]
+	},
+	"MESH_CLUSTERS": {
+		"data_type": "count_dict",
+		"summary_calculator": ["summary_calculators.mean", []],
+		"data_transform1": ["data_transforms.item_multi_mapping", ["MESH_TERMS", "data/MeSH_cluster_mapping.json"]],
+		"data_transform2": ["data_transforms.make_copy", []],
+		"adjusters": [["adjuster_functions.exponential_scaling", [1.0, 0.625]], ["adjuster_functions.manual_JSON", ["data/adjustments.json"]]],
+		"scorer": ["selection", "scoring.annotation_indexed_kldiv_dimension_scorer", 1.0, [1000.0]]
+	},
+	"PASSAGE_TYPE": {
+		"data_type": "singleton",
+		"summary_calculator": ["summary_calculators.mean", []],
+		"rank": "passage",
+		"bioc_extractor": ["bioc_extractors.passage_type", []],
+		"data_transform1": ["data_transforms.rare_threshold", ["<RARE>", 1000, 0.5]],
+		"data_transform2": ["data_transforms.make_copy", []],
+		"data_filter": ["data_filters.passage_names", ["REF/ref", "REF/paragraph", "REF/title", "REF/title_caption", "REF/title_1", "REF/title_2", "REF/footnote", "METHODS/paragraph", "METHODS/title_2", "METHODS/title_3", "METHODS/title_1", "METHODS/title", "METHODS/footnote", "METHODS/title_4", "METHODS/title_caption", "METHODS/title_3_caption", "ACK_FUND/paragraph", "ACK_FUND/title", "ACK_FUND/title_1", "ACK_FUND/footnote", "ACK_FUND/title_2", "ACK_FUND/title_caption", "ACK_FUND/footnote_title", "AUTH_CONT/paragraph", "AUTH_CONT/title", "AUTH_CONT/title_1", "AUTH_CONT/footnote", "AUTH_CONT/title_2", "AUTH_CONT/footnote_title", "REVIEW_INFO/paragraph", "REVIEW_INFO/title", "COMP_INT/paragraph", "COMP_INT/title", "COMP_INT/title_1", "COMP_INT/footnote", "COMP_INT/title_2", "COMP_INT/title_1_caption"]],
+		"adjusters": [["adjuster_functions.manual_JSON", ["data/adjustments.json"]]],
+		"scorer": ["selection", "scoring.annotation_indexed_kldiv_dimension_scorer", 0.5, [1000.0]]
+	},
+	"PASSAGE_SIZE": {
+		"data_type": "number",
+		"summary_calculator": ["summary_calculators.mean_std", []],
+		"rank": "passage",
+		"bioc_extractor": ["bioc_extractors.passage_size", []],
+		"data_transform1": ["data_transforms.make_copy", []],
+		"data_transform2": ["data_transforms.make_copy", []],
+		"data_filter": ["data_filters.passage_zscore", [4.0]],
+		"adjusters": [["adjuster_functions.mean_stdev_scaling", [3.0, 1.5]]],
+		"scorer": ["prior", "scoring.numeric_lognorm_scorer", 1.0, []]
+	},
+	"PASSAGE_SIZE_STRATA": {
+		"data_type": "singleton",
+		"summary_calculator": ["summary_calculators.mean", []],
+		"data_transform1": ["data_transforms.passage_signed_zscore", ["PASSAGE_SIZE", 1]],
+		"data_transform2": ["data_transforms.make_copy", []],
+		"adjusters": [["adjuster_functions.manual_JSON", ["data/adjustments.json"]]],
+		"scorer": ["selection", "scoring.annotation_indexed_kldiv_dimension_scorer", 0.5, [1000.0]]
+	},
+	"VOCABULARY": {
+		"data_type": "count_dict",
+		"summary_calculator": ["summary_calculators.mean", []],
+		"rank": "passage",
+		"bioc_extractor": ["bioc_extractors.vocabulary", []],
+		"data_transform1": ["data_transforms.rare_threshold", ["<RARE>", 1000, 0.5]],
+		"data_transform2": ["data_transforms.make_copy", []],
+		"data_filter": ["data_filters.passage_notempty", []],
+		"adjusters": [["adjuster_functions.lexicon_tokens_TSV", [1.0, "/net/intdev/lulab/leamanjr/collab/CellPhenotypes/data/cell_types.tsv", 0.2]], ["adjuster_functions.exponential_scaling", [1.0, 0.625]]],
+		"scorer": ["selection", "scoring.annotation_indexed_kldiv_dimension_scorer", 0.125, [4000.0]]
+	},
+	"RAW_ANNOTATIONS": {
+		"data_type": "raw",
+		"rank": "passage",
+		"bioc_extractor": ["bioc_extractors.annotations", ["data/annotation_type_mapping.json"]],
+		"data_transform1": ["data_transforms.make_copy", []],
+		"data_transform2": ["data_transforms.make_copy", []]
+	},
+	"ANNOTATION_TYPE_TO_UNIQUE_MENTION": {
+		"data_type": "count_dict",
+		"summary_calculator": ["summary_calculators.mean", []],
+		"rank": "passage",
+		"data_transform1": ["data_transforms.raw_list_counts", ["RAW_ANNOTATIONS", [3], [1]]],
+		"data_transform2": ["data_transforms.make_copy", []],
+		"adjusters": [["adjuster_functions.manual_JSON", ["data/adjustments.json"]]],
+		"scorer": ["selection", "scoring.annotation_indexed_kldiv_dimension_scorer", 2.0, [1000.0]]
+	},
+	"ANNOTATION_TYPE_TO_SOURCE_MENTION": {
+		"data_type": "count_dict",
+		"summary_calculator": ["summary_calculators.mean", []],
+		"rank": "passage",
+		"data_transform1": ["data_transforms.raw_list_counts", ["RAW_ANNOTATIONS", [3], [0, 1]]],
+		"data_transform2": ["data_transforms.make_copy", []],
+		"adjusters": [["adjuster_functions.manual_JSON", ["data/adjustments.json"]]],
+		"scorer": ["selection", "scoring.annotation_indexed_kldiv_dimension_scorer", 2.0, [1000.0]]
+	},
+	"ANNOTATION_MENTIONS": {
+		"data_type": "count_dict",
+		"summary_calculator": ["summary_calculators.mean", []],
+		"rank": "passage",
+		"data_transform1": ["data_transforms.raw_list_counts", ["RAW_ANNOTATIONS", [3, 1], [3, 1, 5, 6]]],
+		"data_transform2": ["data_transforms.make_copy", []],
+		"adjusters": [["adjuster_functions.exponential_scaling", [1.0, 0.625]], ["adjuster_functions.manual_JSON", ["data/adjustments.json"]]],
+		"scorer": ["selection", "scoring.annotation_indexed_kldiv_dimension_scorer", 1.0, [1000.0]]
+	},
+	"ANNOTATION_MENTION_UNIQUENESS": {
+		"data_type": "count_dict",
+		"summary_calculator": ["summary_calculators.mean", []],
+		"rank": "passage",
+		"data_transform2": ["data_transforms.uniqueness", ["ANNOTATION_MENTIONS"]],
+		"adjusters": [["adjuster_functions.manual_JSON", ["data/adjustments.json"]]],
+		"scorer": ["selection", "scoring.annotation_indexed_kldiv_dimension_scorer", 1.0, [1000.0]]
+	},
+	"ANNOTATION_TYPE_SOURCE_TO_MENTION": {
+		"data_type": "count_dict",
+		"summary_calculator": ["summary_calculators.mean", []],
+		"rank": "passage",
+		"data_transform1": ["data_transforms.raw_list_bitvector_counts", ["RAW_ANNOTATIONS", [3], [1], 0, ["PubTator", "AnatEM", "BioID", "CRAFT", "JNLPBA", "CL_DICT"]]],
+		"data_transform2": ["data_transforms.make_copy", []],
+		"adjusters": [["adjuster_functions.manual_JSON", ["data/adjustments.json"]]],
+		"scorer": ["selection", "scoring.annotation_indexed_kldiv_dimension_scorer", 1.0, [1000.0]]
+	}
+}

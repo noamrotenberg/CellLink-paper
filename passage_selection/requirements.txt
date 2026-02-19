@@ -1,0 +1,4 @@
+bioc
+spacy
+unidecode
+scipy
