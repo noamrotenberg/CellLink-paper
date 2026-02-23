@@ -77,17 +77,19 @@ Commands and scripts were tested with Python 3.11.3 and are designed to be run f
 ```
 pip install -r requirements.txt
 ```
-2. Install SciSpaCy model:
+
+The provided requirements.txt includes exact packages versions for repeatability. This code should also run with the following minimal installation:
 ```
+pip install bioc spacy unidecode scipy
 pip install https://s3-us-west-2.amazonaws.com/ai2-s2-scispacy/releases/v0.5.4/en_core_sci_sm-0.5.4.tar.gz
 ```
-3. Download corpus:
+2. Download corpus:
 ```
 ./scripts/update_download.sh
 ```
 Input document IDs are found in ```data/docids.tsv```.
 
-4. Run external NER models (not included).
+3. Run external NER models (not included).
 
 Place outputs in:
    - ```data/BioCXML_AnatEM```
@@ -97,14 +99,14 @@ Place outputs in:
 
 A sample script is provided at ```./scripts/run_NER.sh```
 
-5. Run feature extraction:
+4. Run feature extraction:
 ```
 ./scripts/update_pipeline.sh
 ```
 
 The feature configuration is found at ```data/config.json```
 
-6. Run selection:
+5. Run selection:
 ```
 ./scripts/run_selection.sh
 ```
