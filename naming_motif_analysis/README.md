@@ -46,12 +46,12 @@ We define 14 motif categories:
 | Motif | Definition | Examples |
 |-------|------------|----------|
 | Root | Fundamental identity nouns corresponding to canonical cell classes, serving as the primary identity term in the name | neuron, macrophage, fibroblast |
-| Anatomical context | Terms that localize the cell within the body, such as tissues, organs, regions or directional descriptors.  | vascular, thymic, anterior, retinal |
+| Anatomical context | Terms that localize the cell within the body, such as tissues, organs, regions or directional descriptors. | vascular, thymic, anterior, retinal |
 | Lineage | Terms characterizing developmental origin | epithelial, mesenchymal, hematopoietic |
 | Molecular signature | Terms indicating identifying gene/transcript markers or protein expression patterns | CD8+, SOX2+, double negative |
 | Appearance | Descriptors of visually observable traits such as morphology, structural features, or characteristic staining. | pyramidal, ciliated, acidophilic |
 | Functional role | Terms describing biological function. | natural killer, suppressor, excitatory, secretory |
-| Developmental | Terms indicating the position along a differentiation trajectory, such as maturation stage or lineage commitment.  | embryonic, immature, multipotent, terminally differentiated |
+| Developmental | Terms indicating the position along a differentiation trajectory, such as maturation stage or lineage commitment. | embryonic, immature, multipotent, terminally differentiated |
 | State | Descriptors of dynamic, reversible, or transient physiological conditions. | activated, circulating, exhausted |
 | Variant | Labels denoting subtypes or alternative forms within a broader category according to an established classification scheme. | type 1, conventional, non-classical |
 | Molecular signaling | Terms describing chemicals used for intercellular communication, including neurotransmitters, hormones, or cytokines. | GABAergic, adrenergic, androgen secreting, calcitonin secreting, histaminergic, interferon-producing |
@@ -69,7 +69,7 @@ We define 14 motif categories:
    - All tokens except stopwords are eligible for motif labeling.
 
 ### Candidate Phrase Extraction
-For each name, all contiguous token sequences of length 1-3 are extracted, excluding spans that begin or end with a stopword
+For each name, all contiguous token sequences of length 1-3 are extracted, excluding spans that begin or end with a stopword.
 
 ## Manual + Automated Hybrid Labeling
 ### Step 1 - Manual Motif Identification
@@ -83,12 +83,12 @@ Constraints:
 
 ### Step 2 - Automated Classification
 Remaining candidate phrases are labeled using a multinomial logistic regression classifier trained on the manually labeled examples.
-- Embeddings are generated using SapBERT (SapBERT-from-PubMedBERT-fulltext).
+- Embeddings are generated using SapBERT (```SapBERT-from-PubMedBERT-fulltext```).
 - Each candidate phrase is embedded independently.
 - The classifier is implemented in scikit-learn 1.8.0:
-  - Solver: ```lbfgs```
-  - Penalty: L2
-  - Multinomial loss
+   - Solver: ```lbfgs```
+   - Penalty: L2
+   - Multinomial loss
 
 #### Margin Computation
 Candidates are added in order of decreasing margin: the difference between the highest probability predicted for any label and the second-highest probability. The default min_margin is 0.0, so margin is used only for ordering, not thresholding.
@@ -103,7 +103,7 @@ When enabled:
 - Reported accuracy reflects phrase-level classification accuracy.
 
 In the manuscript, we report:
-0.85 ± 0.02 accuracy (5 iterations of 10-fold cross-validation)
+0.85 ± 0.03 accuracy (5 iterations of 10-fold cross-validation)
 
 Note:
 - No explicit random seed is fixed, though this only affects the CV fold assignment.
@@ -113,19 +113,21 @@ Note:
 ## Hardware Requirements
 - GPU is not required but is used to compute embeddings if available. Embeddings are computed once and cached to disk.
 - Runs on 16 GB RAM machines.
-- Typical runtime under 15 minutes.
+- Typical runtime without cross-validation under 10 minutes. With cross-validation, should be under 20 minutes.
 
 ## Input Data Requirements
 This analysis requires:
 - CellLink corpus, in BioC XML format.
    - The training and validation sets are distributed separately.
    - NOTE: We do *not* distribute the test set.
-- Cell Ontology file, provided in the repository.
-- Name motif mapping file, provided in the repository.
+- Several files provided in the repository:
+   - Name motif mapping file
+   - Cell Ontology json file
+   - Abbreviation mapping file
 
 ## Usage
 
-Commands and scripts were tested with Python 3.11.3 and are designed to be run from directory ```CellLink-paper/naming_motif```.
+Commands and scripts were tested with Python 3.11.3 and are designed to be run from directory ```CellLink-paper/naming_motif_analysis```.
 
 1. Install requirements:
 ```
@@ -156,12 +158,7 @@ Optional arguments:
 | ```--cv-fold-count``` | Number of CV folds (default=10) |
 
 ### Output
-Output files are written to the specified filenames. Example outputs are provided in the  ```output/``` directory.
-
-### Extending the Motif Taxonomy
-Motif categories are defined in ```data/name_motif_map.json```. Adding a new motif requires:
-1. Updating the mapping file.
-2. Updating the enumeration in ```src/analyze_name_patterns.py```.
+Output files are written to the specified filenames. Example outputs are provided in the ```output/``` directory.
 
 ## Citation
 If you use this code or the CellLink corpus, please cite the following paper:
