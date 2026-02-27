@@ -106,8 +106,10 @@ In the manuscript, we report:
 0.85 ± 0.03 accuracy (5 iterations of 10-fold cross-validation)
 
 Note:
-- No explicit random seed is fixed, though this only affects the CV fold assignment.
-- Minor fold variation may occur across runs but does not materially affect aggregate statistics.
+- No explicit random seed is fixed, though this only affects the CV fold assignment. 
+- Minor fold variation may occur across runs but does not materially affect aggregate statistics. 
+   - Specifically, if the cross-validation performance is less than 0.85, there is another issue.
+   - For example, loading the tokenizer with do_lower_case not explicitly set to True will cause many [UNK] tokens to be sent to the model, reducing cv performance to about 0.80. However, Python 3.12 seems to work fine without these fixes, making this _look_ like a reproducibility issue. The current code fixes this case and also checks for [UNK] tokens.
 - Our analysis included the test set, which is not provided.
 
 ## Hardware Requirements
