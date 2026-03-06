@@ -72,8 +72,8 @@ def get_annotations_from_XML(input_collection, input_filename, eval_config):
                 annotators = annotation.findall(".//infon[@key='annotator']")
                 if len(annotators) > 1: raise Exception("Multiple annotators found for 1 annotation") # is this even possible? if not, delete
                 if len(annotators) == 0:
-                    continue ### *** address pre-annotation
-                annotator = annotators[0].text #*** we will need to deal with pre-annotations - they won't be assigned to a specific annotator I think, but their approval is annotator-specific
+                    continue
+                annotator = annotators[0].text
                 
                 if eval_config.annotation_type == 'pool':
                     type = 'pool'
@@ -493,9 +493,9 @@ if __name__ == "__main__":
             log.info("Argument {0}: {1}".format(arg, value))
 
 
-    ref_path = r"C:\Users\rotenbergnh\OneDrive - National Institutes of Health\cell type NLP extraction\2025-04-22_corpus_paper_prep\IAA_subgroups\total_results_by_annotator_pair_after_training"
+    ref_path = r"XX\2025-04-22_corpus_paper_prep\IAA_subgroups\total_results_by_annotator_pair_after_training"
     
-    # multi_ref_path = r"C:\Users\rotenbergnh\OneDrive - National Institutes of Health\cell type NLP extraction\2025-04-22_corpus_paper_prep\IAA_subgroups\total_results_by_MeSH_by_pair_after_training"
+    # multi_ref_path = r"XX\2025-04-22_corpus_paper_prep\IAA_subgroups\total_results_by_MeSH_by_pair_after_training"
     multi_results_dict = {}
     # for dirname in os.listdir(multi_ref_path): # if not multi_ref, then replace this line with: for dirname in [ref_path]
     multi_ref_path = ref_path

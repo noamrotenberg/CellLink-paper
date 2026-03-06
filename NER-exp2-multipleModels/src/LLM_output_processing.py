@@ -33,8 +33,7 @@ def iterate_over_passages(bioc_collection):
 
 
 def find_phrase(text, offset, phrase):
-    # ChatGPT offered this complicated regex: ** need to check
-    # escape any regex‐metacharacters in your phrase
+    # escape any regex‐metacharacters in phrase
     esc = re.escape(phrase)
     
     # build a character‐class for _any_ punctuation:

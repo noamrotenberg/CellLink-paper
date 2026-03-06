@@ -15,15 +15,15 @@ import os
 from nltk.tokenize import sent_tokenize
 
 
-our_data_path = r"C:\Users\rotenbergnh\OneDrive - National Institutes of Health\cell type NLP extraction\2024-12-30_annotation_files/total_results.xml"
+our_data_path = r"2024-12-30_annotation_files/total_results.xml"
 AnatEM_path = "NER-exp1-corpusComparisons/filtered_corpora/AnatEM"
 BioID_path = "NER-exp1-corpusComparisons/filtered_corpora/BioID"
 CRAFT_path = "NER-exp1-corpusComparisons/filtered_corpora/CRAFT"
 JNLPBA_path = "NER-exp1-corpusComparisons/filtered_corpora/JNLPBA"
 
 
-# sourceData_NLP_path = r"C:\Users\rotenbergnh\OneDrive - National Institutes of Health\cell type NLP extraction\2024-10-23_SourceData-NLP_dataset\2024-10-23_cell_types_only\all.xml"
-sourceData_NLP_path = r"C:\Users\rotenbergnh\OneDrive - National Institutes of Health\cell type NLP extraction\2024-10-23_SourceData-NLP_dataset\all_from_Robert_with_IDs.xml"
+# sourceData_NLP_path = r"XX\2024-10-23_SourceData-NLP_dataset\2024-10-23_cell_types_only\all.xml"
+sourceData_NLP_path = r"XX\2024-10-23_SourceData-NLP_dataset\all_from_Robert_with_IDs.xml"
 
 datasets = [("NLM CellLink", our_data_path), ("AnatEM", AnatEM_path), ("BioID", BioID_path), ("CRAFT", CRAFT_path), ("JNLPBA", JNLPBA_path), ("sourceData_NLP", sourceData_NLP_path)]
 ds_names = [ds[0] for ds in datasets]

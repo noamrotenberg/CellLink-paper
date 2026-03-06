@@ -18,15 +18,3 @@ do
         python ../general_scripts/evaluate.py --reference_path $CELLLINK_PATH/test.xml --prediction_path $ZEROSHOT_OUTPUT_PATH --evaluation_type span --evaluation_method $EVALUATION_METHOD --annotation_type "$ANNOTATION_TYPE"
     done
 done
-
-# LLAMA fine-tuning and inference: ### TO DELETE
-python src/LLAMA_finetuning.py $CELLLINK_PATH/LLM_json_format cell_hetero cell_hetero_only/LLAMA /data/rotenbergnh/llama_trials/meta-llama
-python src/LLAMA_inference.py  $CELLLINK_PATH/LLM_json_format cell_hetero cell_hetero_only/LLAMA /data/rotenbergnh/llama_trials/meta-llama
-# convert back to BioC-XML
-# change to TEST
-python src/LLM_output_processing.py cell_hetero_only/LLAMA/output-step376.json $CELLLINK_PATH/val.xml cell_hetero ../../model_outputs/LLAMA_cell_hetero_step376.xml
-
-# from laptop: python \\hpcdrive.nih.gov\data\corpus_paper\NER-exp2-multipleModels\src\LLM_output_processing.py \\hpcdrive.nih.gov\data\corpus_paper\NER-exp2-multipleModels\cell_hetero_only\LLAMA\output-step376.json \\hpcdrive.nih.gov\data\NLM_CellLink_data\val.xml cell_hetero \\hpcdrive.nih.gov\data\model_outputs\LLAMA_cell_hetero_step376.xml 
-# from laptop: python \\hpcdrive.nih.gov\data\corpus_paper\NER-exp2-multipleModels\src\LLM_output_processing.py \\hpcdrive.nih.gov\data\corpus_paper\NER-exp2-multipleModels\cell_hetero_only\LLAMA\output-step376.json \\hpcdrive.nih.gov\data\NLM_CellLink_data\val.xml cell_hetero \\hpcdrive.nih.gov\data\model_outputs\LLAMA_cell_hetero_step376.xml
-
-

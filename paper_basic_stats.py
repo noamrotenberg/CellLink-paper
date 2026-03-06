@@ -20,26 +20,22 @@ import io
 # unfortunately, many of the files here are not available to the public because 
 # they are data directly produced by the annotators and/or include test set passages
 
-output_dir = r"C:\Users\rotenbergnh\OneDrive - National Institutes of Health\cell type NLP extraction\2025-04-22_corpus_paper_prep/"
+output_dir = r"XX\2025-04-22_corpus_paper_prep/"
 
-# change path for IAA script: ## ** DELETE
-eval_path = r"C:\Users\rotenbergnh\OneDrive - National Institutes of Health\cell type NLP extraction\2024-12-16_post-annotation_pipeline_for_pseudodocs/"
-os.chdir(eval_path)
 import evaluation
-# import IAA_evaluation
 
 # these paths refer to files produced by the annotators (not available to the public)
-post_round3_path = r"C:\Users\rotenbergnh\OneDrive - National Institutes of Health\cell type NLP extraction\2024-12-30_annotation_files\Results\PostRound3Processing"
-post_round1_path = r"C:\Users\rotenbergnh\OneDrive - National Institutes of Health\cell type NLP extraction\2024-12-30_annotation_files\Results\PostRound1Processing"
+post_round3_path = "XX/PostRound3Processing"
+post_round1_path = "XX/PostRound1Processing"
 
-merged_output_path = r"C:\Users\rotenbergnh\OneDrive - National Institutes of Health\cell type NLP extraction\2024-12-30_annotation_files/total_results_addl_metadata.xml"
+merged_output_path = "total_results_addl_metadata.xml"
 
-merged_collection_path = r"C:\Users\rotenbergnh\OneDrive - National Institutes of Health\cell type NLP extraction\2025-04-22_corpus_paper_prep\train-test_split\merged.xml"
+merged_collection_path = r"\2025-04-22_corpus_paper_prep\train-test_split\merged.xml"
 
-train_dev_test_split_path = r"C:\Users\rotenbergnh\OneDrive - National Institutes of Health\cell type NLP extraction\2025-04-22_corpus_paper_prep\train-test_split"
+train_dev_test_split_path = r"XX\2025-04-22_corpus_paper_prep\train-test_split"
 
 
-PASSAGE_JSONL_PATH = r"C:\Users\rotenbergnh\OneDrive - National Institutes of Health\cell type NLP extraction\2024-12-30_annotation_files\CellLink_metadata.jsonl"
+PASSAGE_JSONL_PATH = r"XX\2024-12-30_annotation_files\CellLink_metadata.jsonl"
 with open(PASSAGE_JSONL_PATH, 'r') as readfp:
     PASSAGE_METADATA = [json.loads(line) for line in readfp]
 
@@ -47,7 +43,7 @@ with open(PASSAGE_JSONL_PATH, 'r') as readfp:
 assert (collections.Counter([val['passage_id'] for val in PASSAGE_METADATA]).most_common(1)[0][1] == 1)
 PASSAGE_METADATA_DICT = {val['passage_id']: val for val in PASSAGE_METADATA}
 
-CL_ID_to_name_path = r"C:\Users\rotenbergnh\OneDrive - National Institutes of Health\cell type NLP extraction\2024-12-30_annotation_files\CellOntology_id-name-definition-2025-02-13.csv"
+CL_ID_to_name_path = r"XX\2024-12-30_annotation_files\CellOntology_id-name-definition-2025-02-13.csv"
 ID_TO_MENTION_DICT = json.loads(pd.read_csv(CL_ID_to_name_path, index_col=1).dropna().T.to_json())
 ID_TO_MENTION_DICT = {key: val['cl_name'] for key, val in ID_TO_MENTION_DICT.items()}
 ID_TO_MENTION_DICT["None"] = "N/A"
