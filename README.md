@@ -3,8 +3,8 @@ This GitHub repository contains code created to analyze the National Library of 
 
 ## Repository Structure
 This repository includes the following Python scripts, bash files, and other useful files. The cited figures and tables correspond to the manuscript cited below.
-- paper_basic_stats.py – Computes basic statistics about the corpus (Tables 4, 5 and 6; Figure 3)
-- comparing_other_corpora_stats.py – Computes statistics comparing CellLink with other corpora that contain cell types (Table 5)
+- paper_basic_stats.py – Computes basic statistics about the corpus (Tables 2, 4, 5, and 6; Figure 3)
+- comparing_other_corpora_stats.py – Computes statistics comparing CellLink with other corpora that contain cell types (Table 7)
 - NER-exp1-corpusComparisons/run_corpusComparisons.sh – Performs and analyzes NER experiments comparing models trained on CellLink or on other corpora that contain cell types (Table 9)
 - NER-exp2-multipleModels/run_NER-exp2_BERT.sh and NER-exp2-multipleModels/run_NER-exp2_GPT.sh – Performs and analyzes NER experiments comparing different types of models trained on CellLink (Table 8)
 - EL/run_EL.sh – Performs entity linking experiments (Tables 10 and 11, Figure 8)
